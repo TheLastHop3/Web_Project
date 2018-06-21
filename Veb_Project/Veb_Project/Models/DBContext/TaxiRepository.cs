@@ -39,10 +39,10 @@ namespace Veb_Project.Models.DBContext
 
         public Dictionary<string, User> SignedUp { get; set; } = new Dictionary<string, User>();
 
-        public bool UserExists(string username)
+        public bool UserExists(string username,string password)
         {
             return (from user in TaxiServiceRepository.Users
-                    where user.Username == username
+                    where user.Username == username && user.Password == password
                     select user).ToArray().Length != 0;
             
         }
@@ -52,5 +52,20 @@ namespace Veb_Project.Models.DBContext
                     where car.CarNumber == carNumber
                     select car).ToArray().Length != 0;
         }
+
+        public bool DriverExists(string username,string password)
+        {
+            return (from driver in TaxiServiceRepository.Drivers
+                    where driver.Username == username && driver.Password == password
+                    select driver).ToArray().Length != 0;
+        }
+
+        public User getUser(string username)
+        {
+            return (from user in TaxiServiceRepository.Users
+                    where user.Username == username
+                    select user).ToList().First();
+        }
+        
     }
 }

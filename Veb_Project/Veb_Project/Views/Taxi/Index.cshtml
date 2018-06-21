@@ -1,0 +1,110 @@
+﻿
+<html>
+<head>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/angular.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+           
+            let user;
+            let signUpInDiv = ` <span id="userNameErrorMsg" hidden="hidden"></span>
+                                 Username:<input type="text" id = "username" required/>
+                                 <br /><br />
+                                 Password:<input type="password" id ="password" required/>
+                                 <br />
+                                 Remember me:<input type="checkbox" id="checkBox"/>
+                                 <br /><br />
+                                 <button id="signIn">SignIn</button> <button id="signUp">SignUp</button>`;
+
+            $("#signIn").click(function () {
+                $.post("/api/Taxi/SignIn/", $("#username").val(), $("#password").val(),$("#checkBox").val()).done(function (user) {
+                    alert("Uspesno ste se ulogovali");
+                    $("#userNameErrorMsg").show();
+                    $("ulogovan").val() = "Dobrodosli " + user.Name + user.LastName;
+                    $("#options").show() = true;
+                    if (user.Role == "Dispecher") {
+
+                        $("#addDriver").show();
+
+                    }
+
+
+
+                }).fail(function () {
+                    $("#userNameErrorMsg").show = true;
+                    $("#userNameErrorMsg").val() = "Niste uneli dobar username ili password";
+                    });
+
+            });
+            //pritisni signUp dugme
+            $("#signUp").click(function () {
+                let divVal = `Username:<input type = "text" id ="username" reguired/>
+                              Password:<input type = "text" id ="password" reguired/>
+                              Name:<input type = "text" id ="name" reguired/>
+                              LastName:<input type = "text" id ="lastname" reguired/>
+                              Sex:<select id ="sex">
+                                          <option value="Male"/>
+                                          <option value="Famele"/>
+                                   </select>
+                              JMBG:<input type = "text" id ="jmbg" reguired/>
+                              Email:<input type = "email" id ="email" reguired/>
+                              PhoneNumber:<input type="text" id="phone" required/>
+                              <button id = "signUpUser">SignUp</button>
+
+                `;
+                $("#glavni").html(divVal);
+            });
+            //pokusaj signUp korisnika
+            $("#signUpUser").click(function () {
+                let userLogIn = {
+                    Username: $("#username").val(),
+                    Password: $("#password").val(),
+                    Name: $("#name").val(),
+                    LastName: $("#lastname").val(),
+                    Sex: $("#sex").val(),
+                    JMBG: $("#jmbg").val(),
+                    Email: $("#email").val(),
+                    PhoneNumber: $("#phone").val()
+                };
+                $.post("/api/Taxi/SignUp", userLogIn).done(function () {
+                    $("#glavni").html = signUpInDiv;
+                }).fail(function () {
+                    alert("Korisnik sa tim username vec postoji!!");
+                });
+
+                });
+
+            $("#signOff").clik(function () {
+                $("#ulogovan").html() = "";
+                $("#options").show();
+                $("#glavni").html() = signUpInDiv;
+
+            })
+            
+        });
+
+
+    </script>
+
+</head>
+<body>
+    <br />
+    <p id="ulogovan"></p>
+    <div id="options" hidden="hidden"align="right">
+       <a id="addDriver">Add Driver</a> <a id="details">Details</a> <a id="edit">Edit</a> <a id="signOff">SignOff</a>
+    </div>
+    <div id="glavni">
+        <span id="userNameErrorMsg" hidden="hidden"></span>
+        Username:<input type="text" id = "username" required/>
+        <br /><br />
+        Password:<input type="password" id ="password" required/>
+        <br />
+        Remember me:<input type="checkbox" id="checkBox"/>
+        <br /><br />
+        <button id="signIn">SignIn</button> <button id="signUp">SignUp</button>
+    </div>
+   
+
+</body>
+</html>
+

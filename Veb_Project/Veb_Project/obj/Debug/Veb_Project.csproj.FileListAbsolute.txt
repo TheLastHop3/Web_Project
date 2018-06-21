@@ -203,3 +203,4 @@ C:\Users\andre\Desktop\Web_Project\Veb_Project\Veb_Project\bin\roslyn\System.Col
 C:\Users\andre\Desktop\Web_Project\Veb_Project\Veb_Project\bin\roslyn\System.IO.FileSystem.dll
 C:\Users\andre\Desktop\Web_Project\Veb_Project\Veb_Project\bin\roslyn\System.IO.FileSystem.Primitives.dll
 C:\Users\andre\Desktop\Web_Project\Veb_Project\Veb_Project\bin\roslyn\System.Reflection.Metadata.dll
+C:\Users\andre\Desktop\Web_Project\Veb_Project\Veb_Project\obj\Debug\Veb_Project.csprojAssemblyReference.cache

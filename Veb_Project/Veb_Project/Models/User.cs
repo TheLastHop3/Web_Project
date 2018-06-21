@@ -21,7 +21,7 @@ namespace Veb_Project.Models
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public UserRole Role { get; set; }
-        public bool Blocked { get; set; }
+        public bool Blocked { get; set; } = false;
         public List<Ride> Rides { get; set; }
     }
 }

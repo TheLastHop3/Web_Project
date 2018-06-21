@@ -16,8 +16,8 @@ namespace Veb_Project
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
+                routeTemplate: "api/{controller}/{action}/{id}",
+                defaults: new { controller = "Taxi", action = "Index", id = RouteParameter.Optional }
             );
         }
     }
