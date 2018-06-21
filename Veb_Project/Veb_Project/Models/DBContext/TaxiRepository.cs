@@ -37,18 +37,18 @@ namespace Veb_Project.Models.DBContext
         }
 
 
-        public Dictionary<string, User> LoggedInUsers { get; set; } = new Dictionary<string, User>();
+        public Dictionary<string, User> SignedUp { get; set; } = new Dictionary<string, User>();
 
         public bool UserExists(string username)
         {
-            return (from user in _taxiServiceRepository.Users
+            return (from user in TaxiServiceRepository.Users
                     where user.Username == username
                     select user).ToArray().Length != 0;
             
         }
         public bool CarExists(int carNumber)
         {
-            return (from car in _taxiServiceRepository.Cars
+            return (from car in TaxiServiceRepository.Cars
                     where car.CarNumber == carNumber
                     select car).ToArray().Length != 0;
         }
