@@ -19,19 +19,21 @@
             $("#signIn").click(function () {
                 $.post("/api/Taxi/SignIn/", $("#username").val(), $("#password").val(),$("#checkBox").val()).done(function (user) {
                     alert("Uspesno ste se ulogovali");
-                    $("#userNameErrorMsg").show();
-                    $("ulogovan").val() = "Dobrodosli " + user.Name + user.LastName;
-                    $("#options").show() = true;
+                    $("#userNameErrorMsg").hide();
+                    var ulogovan = "Dobrodosli" + user.Name + user.LastName + `<br/><a id="signOff">SignOff</a>`;
+                    $("ulogovan").html() = ulogovan;
+                    $("#options").show();
                     if (user.Role == "Dispecher") {
 
                         $("#addDriver").show();
 
                     }
-
+                    
+                    $("#glavni").html() = "";
 
 
                 }).fail(function () {
-                    $("#userNameErrorMsg").show = true;
+                    $("#userNameErrorMsg").show();
                     $("#userNameErrorMsg").val() = "Niste uneli dobar username ili password";
                     });
 
@@ -39,12 +41,12 @@
             //pritisni signUp dugme
             $("#signUp").click(function () {
                 let divVal = `Username:<input type = "text" id ="username" reguired/>
-                              Password:<input type = "text" id ="password" reguired/>
+                              Password:<input type = "password" id ="password" reguired/>
                               Name:<input type = "text" id ="name" reguired/>
                               LastName:<input type = "text" id ="lastname" reguired/>
                               Sex:<select id ="sex">
-                                          <option value="Male"/>
-                                          <option value="Famele"/>
+                                          <option value="Male">Male</option>
+                                          <option value="Female">Female</option>
                                    </select>
                               JMBG:<input type = "text" id ="jmbg" reguired/>
                               Email:<input type = "email" id ="email" reguired/>
@@ -74,24 +76,334 @@
 
                 });
 
-            $("#signOff").clik(function () {
+            $("#signOff").click(function () {
                 $("#ulogovan").html() = "";
                 $("#options").show();
                 $("#glavni").html() = signUpInDiv;
 
-            })
-            
-        });
+            });
+//Deo vezan za Vozaca
+            $("#addDriver").click(function () {
+                
+                var addDriverAndCar = `
+    <table>
+       <tr>
+           <td colspan="4">Enter driver</td>
+       </tr>
+       <tr>
+           <td>Username:</td><td><input type="text" id="username" reguired /></td>
+           <td>Password:</td><td><input type="text" id="password" reguired /></td>
+       </tr>    
+       <tr>
+           <td>Name:</td><td> <input type="text" id="name" reguired /></td>
+           <td>LastName:</td><td><input type="text" id="lastname" reguired /></td>
+       </tr>     
+       <tr>
+           <td>Sex:</td>
+           <td>
+               <select id="sex">
+                   <option value="Male">Male</option>
+                   <option value="Female">Female</option>
+               </select>
+           </td>
+           <td>JMBG:</td>
+           <td> <input type="text" id="jmbg" reguired /></td>
+       </tr>
+       <tr>
+           <td>Email:</td><td><input type="email" id="email" reguired /></td>
+           <td>PhoneNumber:</td><td><input type="text" id="phone" required /></td>
+       </tr>
+       <tr>
+           <td colspan="4">Enter lokation</td>
+       </tr>
+       <tr>
+           <td>Longitude:</td><td><input type="text" id="x" required /></td>
+           <td>Latitude:</td><td><input type="text" id="y" required /></td>
+       </tr> 
+       <tr>
+           <td colspan="4">Enter address</td>
+       </tr>
+       <tr>
+           <td>Street:</td><td><input type="text" id="street" required /></td>
+           <td>Number:</td><td><input type="text" id="number" required /></td>
+       </tr>
+       <tr>
+           <td>City:</td><td><input type="text" id="city" required /></td>
+           <td>Postal code:</td><td><input type="text" id="postal" required /></td>
+       </tr>  
+       <tr>
+           <td colspan="4">Enter car</td>
+       </tr>   
+       <tr>
+           <td>Year:</td><td><input type="text" id="year" required /></td>
+           <td>Registration:</td><td><input type="text" id="registration" required /></td>
+       </tr>
+       <tr>
+           <td>Car Number:</td><td><input type="text" id="carnumber" required /></td>
+           <td>Car Type:</td>
+           <td><select id="cartype">
+                    <option value="Van">Van</option>
+                    <option value="Sedan">Sedan</option>
+               </select></td>
+           <td></td>
+       </tr> 
+       <tr>
+           <td colspan="4" align="right">
+               <button id="driverOk">OK</button> 
+               <button id="driverCancel">Cancel</button>
+           </td>
+       </tr>
+   </table>`;
+                $("#glavni").html() = addDriverAndCar;
+            });
+            $("#driverCancel".click(function () {
+                $("#glavni").html() = "";
+            }));
+            $("#driverOk").click(function () {
+                var driver = {
+                    Username: $("#username").val(),
+                    Password: $("#password").val(),
+                    Name: $("#name").val(),
+                    LastName: $("#lastname").val(),
+                    Sex: $("#sex").val(),
+                    JMBG: $("#jmbg").val(),
+                    Email: $("#email").val(),
+                    PhoneNumber: $("#phone").val(),
+                    Location: {
+                        Longitude: $("#x").val(),
+                        Latitude: $("#y").val(),
+                        Address: {
+                            Street: $("#street").val(),
+                            Number: $("#number").val(),
+                            City: $("#city").val(),
+                            PostalCode: $("#postal").val(),
+                        },
+                    },
+                    Car: {
+                        Year: $("#year").val(),
+                        Registration: $("#registration").val(),
+                        CarNumber: $("#carnumber").val(),
+                        Type: $("#cartype").val(),
+                    }
+                }
+                let retMessage;
+                $.post("/api/Taxi/SignUpDriver", driver).done(function (retMessage) {
+                    if (retMessage == "Car")
+                        alert("Invalid CarNumber");
+                    else
+                        alert("Invalid Username");
+                }).fail(function () {
+                    $("#glavni").html() = "";
+                });
 
+
+            });
+//Deo vezan za Details
+            $("#details").click(function () {
+                let divDetails = "<h1>Details</h1><br/>Name: " + user.Name + "<br/>LastName: " + user.LastName + "<br/>Sex: " + user.Sex + "<br/>JMBG: " + user.JMBG;
+                divDetails += "<br/>Email: " + user.Email + "<br/>PhoneNumber: " + user.PhoneNumber;
+                if (user.Role == "Driver") {
+                    divDetails += "<br/>Longtitude: " + user.Location.Longitude + "<br/>Latitude: " + user.Location.Latitude;
+                    divDetails += "<br/>" + user.Location.Address.Street + " " + user.Location.Address.Number + ", " + user.Location.Address.City + " " + user.Location.Address.PostalCode;
+                }
+
+                $("#glavni").html() = divDetails;
+            });
+//Deo vezan za Edit
+            $("#edit").click(function(){
+                var editTemplate = `<a id="editInfo">Change your personal info</a> <a id="editPw">Change your password</a>`;
+
+                $("#glavni").html() = editTemplate;              
+
+            });
+            $("#editInfo").click(function () {
+                var editInfoDiv = `   <table>
+       <tr>
+           <td colspan="4" valign = "middle">Personal Info</td>
+       </tr>   
+       <tr>
+           <td>Name:</td><td> <input type="text" id="name" reguired value="`+ user.Name +`"/></td>
+           <td>LastName:</td><td><input type="text" id="lastname" reguired value="`+ user.LastName+`" /></td>
+       </tr>     
+       <tr>
+           <td>Sex:</td>
+           <td>
+               <select id="sex">`
+                if (user.Sex == "Male") {
+                    editInfoDiv += `<option value="Male" selected>Male</option>
+                                     <option value="Female">Female</option>`
+                } else {
+                    editInfoDiv += `<option value="Male">Male</option>
+                                     <option value="Female" selected>Female</option>`
+                }
+                editInfoDiv += `</select>
+           </td>
+           <td>JMBG:</td>
+           <td> <input type="text" id="jmbg" reguired value="`+ user.JMBG + `"/></td>
+       </tr>
+       <tr>
+           <td>Email:</td><td><input type="email" id="email" reguired value="`+ user.Email + `"/></td>
+           <td>PhoneNumber:</td><td><input type="text" id="phone" required value="`+ user.PhoneNumber + `" /></td>
+       </tr>`;
+                if (user.Role == "Driver") {
+                    editInfoDiv += `
+       <tr>
+           <td>Longitude:</td><td><input type="text" id="x" required value="`+ user.Location.Longitude + `"/></td>
+           <td>Latitude:</td><td><input type="text" id="y" required value="`+ user.Location.Latitude + `"/></td>
+       </tr> 
+       <tr>
+           <td>Street:</td><td><input type="text" id="street" required value="`+ user.Location.Address.Street + `"/></td>
+           <td>Number:</td><td><input type="text" id="number" required value="`+ user.Location.Address.Number + `"/></td>
+       </tr>
+       <tr>
+           <td>City:</td><td><input type="text" id="city" required value="`+ user.Location.Address.City + `"/></td>
+           <td>Postal code:</td><td><input type="text" id="postal" required value="`+ user.Location.Address.PostalCode + `"/></td>
+       </tr>  
+       <tr>
+           <td>Year:</td><td><input type="text" id="year" requiredvalue="`+ user.Car.Year + `" /></td>
+           <td>Registration:</td><td><input type="text" id="registration" required value="`+ user.Car.Registration + `"/></td>
+       </tr>
+       <tr>
+           <td>Car Type:</td>
+           <td><select id="cartype">`;
+                    if (user.car.Type == "Sedan") {
+
+                        editInfoDiv += `<option value="Van">Van</option>
+                            <option value="Sedan" selected>Sedan</option>`;
+                    } else {
+                        editInfoDiv += `<option value="Van" selected>Van</option>
+                            <option value="Sedan">Sedan</option>`;
+                    }
+                    editInfoDiv += `</select></td>
+           <td>Current Password:</td><td><input id="password" type="password"/></td>
+       </tr> 
+      <tr>
+          <td colspan="4" align = "right"><button id="driverOkEdit">OK</button>
+         <button id="driverCancelEdit">Cancel</button></td>
+      </tr>
+   </table >`;
+                } else {
+                    editInfoDiv += `<tr> <td colspan="2">Current Password:</td><td colspan="2"><input id="password" type="password"/></td>
+                                     </tr> 
+                                     <tr>
+                                            <td colspan="4" align = "right"><button id="userOkEdit">OK</button>
+                                             <button id="userCancelEdit">Cancel</button></td>
+                                     </tr>
+   </table >`;
+                    
+                }
+                $("#glavni").html() = editInfoDiv;
+            });
+            $("#driverCancelEdit").click(function () {
+                $("#glavni").html() = "";
+            });
+            $("#driverOkEdit").click(function () {
+                if (user.Password == $("#password").val()) {
+                    $("#glavni").html() = "";
+                    var driver = {
+                        Name: $("#name").val(),
+                        LastName: $("#lastname").val(),
+                        Sex: $("#sex").val(),
+                        JMBG: $("#jmbg").val(),
+                        Email: $("#email").val(),
+                        PhoneNumber: $("#phone").val(),
+                        Location: {
+                            Longitude: $("#x").val(),
+                            Latitude: $("#y").val(),
+                            Address: {
+                                Street: $("#street").val(),
+                                Number: $("#number").val(),
+                                City: $("#city").val(),
+                                PostalCode: $("#postal").val(),
+                            },
+                        },
+                        Car: {
+                            Year: $("#year").val(),
+                            Registration: $("#registration").val(),
+                            Type: $("#cartype").val(),
+                        }
+                    }
+                    $.post("/api/Taxi/EditDriver", driver).done(function (editedDriver) {
+                        user = editedDriver;
+                        $("#glavni").html() = "";
+                        alert("Successful changed your personal info");
+                    });
+                } else {
+                    alert("Wrong password");
+                }
+            });
+            $("#userOkEdit").click(function () {
+                if (user.Password == $("#password").val()) {
+                    $("#glavni").html() = "";
+                    var userEdit = {
+                        Name: $("#name").val(),
+                        LastName: $("#lastname").val(),
+                        Sex: $("#sex").val(),
+                        JMBG: $("#jmbg").val(),
+                        Email: $("#email").val(),
+                        PhoneNumber: $("#phone").val()
+                    };
+
+                    $.post("/api/Taxi/EditUser", userEdit).done(function (editedUser) {
+                        user = editedUser;
+                        alert("Successful changed your personal info");
+                        $("#glavni").html() = "";
+                    });
+
+                } else {
+                    alert("Wrong password");
+                }
+            });
+            $("#userCancelEdit").click(function () {
+                $("#glavni").html() = "";
+            });
+            $("#editPw").click(function () {
+                let editPwDiv = `<h1>Change your password</h1>
+                                <table>
+                                    <tr>
+                                        <td>Current password:</td><td><input type="password" id="currPW"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>New password:</td><td><input type="password" id="newPW"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Repeat new password:</td><td><input type="password" id="rrPW"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button id="editPwOk">Ok</button></td><td><button id="editPwCancel">Cancel</button></td>
+                                    </tr>
+                                 </table>`
+                $("#glavni").html() = editPwDiv;
+            });
+            $("#editPwOk").click(function () {
+                if (user.Password == $("#currPw").val() ) {
+                    if ($("#newPw").val() == $("#rrPw").val()) {
+                        $.post("/api/Taxi/EditPassword", $("#newPw").val()).done(function () {
+                            alert("Successful changed your password");
+                            user.Password = $("#newPw").val();
+                            $("#glavni").html() = "";
+                        });
+                    } else {
+                        alert("Mismached passwords");
+                    }
+                } else {
+                    alert("Wrong current password")
+                }
+            });
+            $("#editPwCancel").click(function () {
+                $("#glavni").html() = "";
+            });
+        });
+        
 
     </script>
 
 </head>
-<body>
+<body onload="checkCookie()">
     <br />
-    <p id="ulogovan"></p>
+    <p id="ulogovan" align ="right"></p>
     <div id="options" hidden="hidden"align="right">
-       <a id="addDriver">Add Driver</a> <a id="details">Details</a> <a id="edit">Edit</a> <a id="signOff">SignOff</a>
+       <a id="addDriver">Add Driver</a> <a id="details">Details</a> <a id="edit">Edit</a> 
     </div>
     <div id="glavni">
         <span id="userNameErrorMsg" hidden="hidden"></span>
@@ -103,8 +415,6 @@
         <br /><br />
         <button id="signIn">SignIn</button> <button id="signUp">SignUp</button>
     </div>
-   
-
 </body>
 </html>
 
