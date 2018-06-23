@@ -6,17 +6,25 @@ using System.Web.Http;
 using System.Web.Mvc;
 using Veb_Project.Models;
 using Veb_Project.Models.DBContext;
+using Veb_Project.Models.Enums;
 
 namespace Veb_Project.Controllers
 {
     public class TaxiController : ApiController
     {
-        //Done:Template for SignIn,Options,SignOff,SignUp,Details User/Driver,Edit info User/Driver,Edit pw,SignUp Driver
-        //TO DO: logic,sort
-
+        //Done:Template for SignIn,Options,SignOff,SignUp,Details User/Driver,Edit info User/Driver,Edit pw,SignUp Driver,printMainCustomer,Add ride disp,custom
+        //TO DO: cancel ride,rest
         private User signedIn = new User();
         private Driver signedInD = new Driver();
+        private List<Driver> slobodniVozaci = new List<Driver>();
+        private Ride dispRide = null;
         bool userLogged = false;
+        bool driverLogged = false;
+        bool dispecherLogged = false;
+        bool dispNapravioVoznju = false;
+        private List<Ride> ridesSl = new List<Ride>();
+        private Ride selectedRideToAssign = new Ride();
+        List<Ride> GetridesMain = new List<Ride>();
         public IHttpActionResult SignIn(string username,string password,bool checkBox)
         {
             if (!TaxiRepository.Instance.UserLogin(username,password))
@@ -153,7 +161,7 @@ namespace Veb_Project.Controllers
                         
                 }
             }
-            else
+            else if(driverLogged)
             {
                 foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
                 {
@@ -167,6 +175,185 @@ namespace Veb_Project.Controllers
             }
 
             return NotFound();
+        }
+        public IHttpActionResult AddRide(Location location,CarType type)
+        {
+            Ride ride = new Ride();
+            ride.CarType = type;
+            ride.CustomerLocation = location;
+            ride.OrderTime = DateTime.Now;
+           
+            
+            if (userLogged)
+            {
+                dispNapravioVoznju = false; 
+                ride.Status = RideStatus.Ordered;
+                ride.Customer = signedIn;
+                signedIn.Rides.Add(ride);
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Users)
+                {
+                    if(item.Username == signedIn.Username)
+                    {
+                        item.Rides.Add(ride);
+                        TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
+
+                    }
+                }
+                TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(ride);
+                TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
+                return Ok("Successfuly ordered ride,the available driver will pick you up shorlty");
+            }else if (dispecherLogged)
+            {
+                dispNapravioVoznju = true;
+                dispRide.CarType = type;
+                dispRide.CustomerLocation = location;
+                dispRide.OrderTime = DateTime.Now;
+                dispRide.Status = RideStatus.Processed;
+                dispRide.Dispatcher = signedIn;
+                TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(dispRide);
+                TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
+                return Ok("");
+
+            }
+            return NotFound();
+        }
+
+        public List<Driver> getDrivers()
+        {
+            bool slobodan;
+            slobodniVozaci.Clear();
+            if (TaxiRepository.Instance.TaxiServiceRepository.Drivers.Count() > 0)
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
+                {
+                    slobodan = true;
+                    foreach (var rides in item.Rides)
+                    {
+                        if (rides.Status == RideStatus.Accepted) slobodan = false;
+                    }
+                    if (slobodan)
+                    {
+                        slobodniVozaci.Add(item);
+                        // ride.Status = RideStatus.Accepted;
+                        //item.Rides.Add(ride);
+                        //TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
+
+                    }
+                }
+
+                return slobodniVozaci;
+            }
+
+            return new List<Driver>();
+        }
+
+        public List<Ride> getRides()
+        {
+            
+            slobodniVozaci.Clear();
+            
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+                {
+                  
+                   if(item.Status != RideStatus.Accepted && item.Status != RideStatus.Succesful && item.Status != RideStatus.Unsuccessful)
+                    {
+                        ridesSl.Add(item);
+                    }
+                       
+                   
+                }      
+            return ridesSl;
+
+        }
+        public IHttpActionResult SelectDriver(int i)
+        {
+            if (dispNapravioVoznju)
+            {
+                slobodniVozaci[i].Rides.Add(dispRide);
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
+                {
+                    if (slobodniVozaci[i].Username == item.Username)
+                    {
+                        dispRide.Status = RideStatus.Accepted;
+                        item.Rides.Add(dispRide);
+                        TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
+                        break;
+                    }
+                }
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Users)
+                {
+                    if (item.Username == signedIn.Username)
+                    {
+                        foreach (var rides in item.Rides)
+                        {
+                            if (rides.Dispatcher.Username == signedIn.Username)
+                            {
+                                rides.Status = RideStatus.Accepted;
+                                TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
+                                return Ok();
+                            }
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+
+                selectedRideToAssign.Status = RideStatus.Accepted;
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides) 
+                {
+                    if(item.Customer.Username == selectedRideToAssign.Customer.Username)
+                    {
+                        item.Status = RideStatus.Accepted;
+                        break;
+                    }
+                }
+
+                slobodniVozaci[i].Rides.Add(selectedRideToAssign);
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
+                {
+                    if (slobodniVozaci[i].Username == item.Username)
+                    {
+                        dispRide.Status = RideStatus.Accepted;
+                        item.Rides.Add(dispRide);
+                    }
+                }
+                        TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
+
+            }
+            return Ok();
+        }
+
+        public IHttpActionResult SelectRide(int i)
+        {
+
+            selectedRideToAssign = ridesSl[i];
+            return Ok();
+
+        }
+
+        public List<Ride> getRidesMain()
+        {
+            GetridesMain.Clear();
+            if (userLogged)
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+                {
+                    if (item.Customer.Username == signedIn.Username) GetridesMain.Add(item);
+                }
+
+            }else if (dispecherLogged)
+            {
+
+
+            }else if (driverLogged)
+            {
+
+
+            }
+
+            return GetridesMain;
         }
     }
 }
