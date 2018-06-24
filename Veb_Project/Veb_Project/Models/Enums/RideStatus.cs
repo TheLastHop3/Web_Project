@@ -7,6 +7,6 @@ namespace Veb_Project.Models
 {
     public enum RideStatus
     {
-        Ordered,Formed,Processed,Accepted,Waiting,Canceled,Succesful, Unsuccessful
+        Ordered,Formed,Processed,Accepted,Waiting,Canceled,Successful, Unsuccessful
     }
 }

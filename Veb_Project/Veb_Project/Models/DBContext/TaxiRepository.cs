@@ -79,5 +79,21 @@ namespace Veb_Project.Models.DBContext
                     select user).ToList().First();
         }
         
+        public Ride getRide(string username)
+        {
+            return (from ride in TaxiServiceRepository.Rides
+                    where ride.Customer.Username == username || ride.Driver.Username == username || ride.Dispatcher.Username == username
+                    select ride).ToList().First();
+                    
+        }
+
+        public Driver getDriver(string username)
+        {
+            return (from driver in TaxiServiceRepository.Drivers
+                    where driver.Username == username
+                    select driver).ToList().First();
+        }
+
+       
     }
 }
