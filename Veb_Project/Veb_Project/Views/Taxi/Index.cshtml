@@ -19,19 +19,35 @@
             $("#signIn").click(function () {
                 $.post("/api/Taxi/SignIn/", $("#username").val(), $("#password").val(),$("#checkBox").val()).done(function (user) {
                     alert("Uspesno ste se ulogovali");
+                    var username = $("#username").val();
+                    var password = $("#password").val();
+                    if ($("#checkBox").val() == true) {
+                        document.cookie = `${username}=${password};max-age=${60*60*24*365}`;
+
+                    } else {
+                        document.cookie = `${username}=${password}`;
+                    }
+
+
+
+
                     $("#userNameErrorMsg").hide();
                     var ulogovan = "Dobrodosli" + user.Name + user.LastName + `<br/><a id="signOff">SignOff</a>`;
                     $("ulogovan").html() = ulogovan;
                     $("#options").show();
+                       
                     if (user.Role == "Dispecher") {
-
+                        $("#korisnik").show();
                         $("#addDriver").show();
                         $("#addRide").val() = "Create ride";
                         $("#assignRide").show();
                         $("#allTheRides").show();
                         printMainPageForDispecher();
-                        
+                        $("#tableDisp").show();
+                        $("#block").show();
                     } else {
+                        $("#block").hide();
+                        $("#tableDisp").hide();
                         $("#addDriver").hide();
                         $("#assignRide").hide();
                         $("#allTheRides").hide();
@@ -39,6 +55,7 @@
                     if (user.Role == "Customer") {
                         $("#addRide").val() = "Request ride";
                         printMainPageForCustomer();
+                        $("#korisnik").show();
                     }
                     if (user.Role != "Driver") {
                         $("#addRide").show();
@@ -105,9 +122,10 @@
                 $("#ulogovan").html() = "";
                 $("#options").hide();
                 $("#glavni").html() = signUpInDiv;
+                $("#korisnik").hide();
                 $.post("/api/Taxi/SignOff");
             });
-//Deo vezan za Vozaca
+//Vozaca
             $("#addDriver").click(function () {
                 
                 var addDriverAndCar = `
@@ -670,6 +688,50 @@
                 else
                     printMainPageForDispecher();
             });
+            $("#btnFilter").click(function () {
+
+            });
+            $("#searchDate").click(function () {
+
+            });
+            $("#searchRate").click(function () {
+
+            });
+            $("#searchFare").click(function () {
+
+            });
+            $("#searchDriver").click(function () {
+
+            });
+            $("#searchCustomer").click(function () {
+
+            });
+            $("#block").click(function () {
+                var blockUser = `Username:<input type="text" id="blockUsername"/><br/><button id="blockOk">Block</button><button id="unblock">UnBlock</button><button id="blockCancel">Cancel</button>`;
+                $("#glavni").html() = blockUser;
+            });
+            $("#blockOk").click(function () {
+                $.post("/api/Taxi/Block/", $("#blockUsername").val()).done(function () {
+                    alert("Successfuly blocked user");
+                    printMainPageForDispecher();
+                }).fail(function () {
+                    alert("Unsuccessfuly blocked user");
+
+                });
+            });
+            $("#unblock").click(function () {
+                $.post("/api/Taxi/UnBlock/", $("#blockUsername").val()).done(function () {
+                    alert("Successfuly unblocked user");
+                    printMainPageForDispecher();
+                }).fail(function () {
+                    alert("Unsuccessfuly unblocked user");
+
+                });
+
+            });
+            $("#blockCancel").click(function () {
+                printMainPageForDispecher();
+            });
         });
         function select(i) {
             $.get("/api/Taxi/SelectDriver", i).done(function () {
@@ -813,6 +875,9 @@
             });
                 printMainPageForDriver(true);
         }
+        function checkCookie() {
+
+        }
     </script>
 
 </head>
@@ -820,7 +885,7 @@
     <br />
     <p id="ulogovan" align ="right"></p>
     <div id="options" hidden="hidden"align="right">
-  <a id="home">Home</a> <a id="allTheRides">See all the rides</a> <a id="checkRides">Check available rides</a><a id="seeCurrentRide">See Current Ride</a> <a id="assignRide">AssignRide</a> <a id="addRide">ride</a><a id="addDriver">Add Driver</a> <a id="details">Details</a> <a id="edit">Edit</a> 
+  <a id="block">Block/Unblock</a><a id="home">Home</a> <a id="allTheRides">See all the rides</a> <a id="checkRides">Check available rides</a><a id="seeCurrentRide">See Current Ride</a> <a id="assignRide">AssignRide</a> <a id="addRide">ride</a><a id="addDriver">Add Driver</a> <a id="details">Details</a> <a id="edit">Edit</a> 
     </div>
     <div id="glavni">
         <span id="userNameErrorMsg" hidden="hidden"></span>
@@ -832,21 +897,128 @@
         <br /><br />
         <button id="signIn">SignIn</button> <button id="signUp" onclick="">SignUp</button>
     </div>
-    <div id="search">
+    <div id="korisnik" hidden>
         <table>
             <tr>
-                <td colspan="2">Pretraga po datumu:</td>
+                <td colspan="2">Filter by status</td>
             </tr>
             <tr>
-                <td>Od:</td><td><input type="text" id="" /></td>
+                <td>Select status</td>
+                <td>
+                 <select id="status">
+                     <option value="NoFilter">No Filter</option>
+                     <option value="Ordered">Ordered</option>
+                     <option value="Accepted">Accepted</option>
+                     <option value="Canceled">Canceled</option>
+                     <option value="Successful">Successful</option>
+                     <option value="Unsuccessful">Unsuccessful</option>
+                 </select>             
+                </td>
             </tr>
             <tr>
-                <td>Do:</td><td><input type="text" id="" /></td>
+                <td colspan="2"><button id="btnFilter">Filter</button></td>
+            </tr>
+        </table>
+
+        <br />
+        <table>
+            <tr>
+                <td colspan="2">Search by date:</td>
+            </tr>
+            <tr>
+                <td>Od:</td>
+                <td><input type="text" id="dateOd" /></td>
+            </tr>
+            <tr>
+                <td>Do:</td>
+                <td><input type="text" id="dateDo" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchDate">Search</button></td>
+            </tr>
+            <tr>
+                <td colspan="2">Search by rate:</td>
+            </tr>
+            <tr>
+                <td>Od:</td>
+                <td>
+                    <select id="rateOd">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Do:</td>
+                <td>
+                    <select id="rateDo">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchRate">Search</button></td>
+            </tr>
+            <tr>
+                <td colspan="2">Search by Fare:</td>
+            </tr>
+            <tr>
+                <td>Od:</td>
+                <td><input type="text" id="fareOd" /></td>
+            </tr>
+            <tr>
+                <td>Do:</td>
+                <td><input type="text" id="fareDo" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchFare">Search</button></td>
+            </tr>
+        </table>
+        <br />
+        <table id="tableDisp">
+            <tr>
+                <td colspan="2">Search driver</td>
+            </tr>
+            <tr>
+                <td>Name:</td>
+                <td><input type="text" id="nameDriver" /></td>
+            </tr>
+            <tr>
+                <td>LastName:</td>
+                <td><input type="text" id="lastDriver" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchDriver">Search</button></td>
+            </tr>
+            <tr>
+                <td colspan="2">Search customer</td>
+            </tr>
+            <tr>
+                <td>Name:</td>
+                <td><input type="text" id="nameCustomer" /></td>
+            </tr>
+            <tr>
+                <td>LastName:</td>
+                <td><input type="text" id="lastCustomer" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchCustomer">Search</button></td>
             </tr>
         </table>
     </div>
+
+
  
-    
+   
    
 </body>
 </html>

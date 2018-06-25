@@ -29,12 +29,12 @@ namespace Veb_Project.Controllers
         List<Ride> GetridesMain = new List<Ride>();
         public IHttpActionResult SignIn(string username, string password, bool checkBox)
         {
-            if (!TaxiRepository.Instance.UserLogin(username, password) || !TaxiRepository.Instance.DriverLogin(username,password))
+            if (!TaxiRepository.Instance.UserLogin(username, password))
             {
                 
                 if (checkBox)
                 {
-                   
+                    
                     //remember
                 }
                 else
@@ -42,6 +42,9 @@ namespace Veb_Project.Controllers
                     //dont remember
                 }
                 signedIn = TaxiRepository.Instance.getUser(username);
+                if (signedIn.Blocked) return NotFound();
+                if (signedIn.Role == UserRole.Customer) userLogged = true;
+                else dispecherLogged = true;
                 return Ok(signedIn);
             }else if(!TaxiRepository.Instance.DriverLogin(username, password))
             {
@@ -56,7 +59,8 @@ namespace Veb_Project.Controllers
                 }
 
                 signedInD = TaxiRepository.Instance.getDriver(username);
-
+                if (signedInD.Blocked) return NotFound();
+                driverLogged = true;
                 return Ok(signedInD);
             }
 
@@ -631,6 +635,120 @@ namespace Veb_Project.Controllers
         {
 
             return TaxiRepository.Instance.TaxiServiceRepository.Rides.ToList();
+        }
+
+        public List<Ride> Sort(bool datum)
+        {
+            List<Ride> sorted = new List<Ride>();
+            if (datum)
+            {
+                return TaxiRepository.Instance.SortRideTime();
+
+            }
+            else
+            {
+                return TaxiRepository.Instance.SortRideRate();
+
+            }
+        }
+        public List<Ride> Search(Dodatno dodatno)
+        {
+            if (dodatno.SearchOcena)
+            {
+                if(dodatno.OcenaDo > 0)
+                {
+
+                }
+                else
+                {
+
+                }
+            }else if (dodatno.SearchCena)
+            {
+
+            }else if (dodatno.SearchDatum)
+            {
+
+            } else if (dodatno.SearchC)
+            {
+                
+            }else if (dodatno.SearchD)
+            {
+
+            }
+
+            return null;
+        }
+
+        private List<Ride> getAllRides(string username)
+        {
+            List<Ride> rides = new List<Ride>();
+            if (dispecherLogged)
+            {
+
+            }else if (userLogged)
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+                {
+                    if (item.Customer.Username == username) rides.Add(item);
+                }
+            }
+
+            return rides;
+        
+        }
+
+        private IHttpActionResult Block(string username)
+        {
+            if (TaxiRepository.Instance.UserExists(username))
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Users)
+                {
+                    if (item.Username == username && item.Role != UserRole.Dispatcher)
+                    {
+                        item.Blocked = true;
+                        return Ok();
+                    }
+                }
+            }else if (TaxiRepository.Instance.DriverExists(username))
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
+                {
+                    if (item.Username == username)
+                    {
+                        item.Blocked = true;
+                        return Ok();
+                    }
+                }
+            }
+            return NotFound();
+        }
+
+        private IHttpActionResult UnBlock(string username)
+        {
+            if (TaxiRepository.Instance.UserExists(username))
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Users)
+                {
+                    if (item.Username == username && item.Role != UserRole.Dispatcher)
+                    {
+                        item.Blocked = false;
+                        return Ok();
+                    }
+                }
+            }
+            else if (TaxiRepository.Instance.DriverExists(username))
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
+                {
+                    if (item.Username == username)
+                    {
+                        item.Blocked = false;
+                        return Ok();
+                    }
+                }
+            }
+            return NotFound();
         }
     }
 }

@@ -94,6 +94,16 @@ namespace Veb_Project.Models.DBContext
                     select driver).ToList().First();
         }
 
-       
+       public List<Ride> SortRideTime()
+        {
+            //treba po opadajucem
+            return (from ride in TaxiServiceRepository.Rides orderby ride.OrderTime select ride).ToList();
+        }
+
+        public List<Ride> SortRideRate()
+        {
+            //isto opadajuecm
+            return (from ride in TaxiServiceRepository.Rides orderby ride.Comment.Rate select ride).ToList();
+        }
     }
 }

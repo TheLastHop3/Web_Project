@@ -200,6 +200,7 @@
     <Compile Include="Models\Comment.cs" />
     <Compile Include="Models\DBContext\TaxiRepository.cs" />
     <Compile Include="Models\DBContext\TaxiServiceContext.cs" />
+    <Compile Include="Models\Dodatno.cs" />
     <Compile Include="Models\Driver.cs" />
     <Compile Include="Models\Enums\CarType.cs" />
     <Compile Include="Models\Enums\RideStatus.cs" />
