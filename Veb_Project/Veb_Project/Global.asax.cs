@@ -139,11 +139,13 @@ namespace Veb_Project
                 if(!TaxiRepository.Instance.SignedUp.ContainsKey(item.Username))
                 TaxiRepository.Instance.SignedUp.Add(item.Username,item);
             }
+            if(!TaxiRepository.Instance.SignedUpD.ContainsKey(testDriver.Username))
             TaxiRepository.Instance.SignedUpD.Add(testDriver.Username, testDriver);
 
             TaxiRepository.Instance.AllRides.Add(ride);
             TaxiRepository.Instance.AllRides.Add(ride2);
             TaxiRepository.Instance.AllRides.Add(ride1);
+            
             TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(ride);
             TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
             LoadDispechers(@"C:\Users\andre\Desktop\Web_Project\Veb_Project\Veb_Project\App_Data\Dispechers.txt");
