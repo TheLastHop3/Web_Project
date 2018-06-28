@@ -8,12 +8,12 @@ namespace Veb_Project.Models
     public class Dodatno
     {
 
-        public string DatumOd { get; set; }
-        public string DatumDo { get; set; }
+        public DateTime DatumOd { get; set; }
+        public DateTime DatumDo { get; set; }
         public int OcenaOd { get; set; }
         public int OcenaDo { get; set; }
-        public float CenaOd { get; set; }
-        public float CenaDo { get; set; }
+        public decimal CenaOd { get; set; }
+        public decimal CenaDo { get; set; }
         public string imeVozaca { get; set; }
         public string prezimeVozaca { get; set; }
         public string imeMusterije { get; set; }
@@ -23,5 +23,8 @@ namespace Veb_Project.Models
         public bool SearchD { get; set; }
         public bool SearchC { get; set; }
         public bool SearchDatum { get; set; }
+        public RideStatus Status { get; set; }
+        public bool SortDatum { get; set; }
+        public bool SortOcena { get; set; }
     }
 }

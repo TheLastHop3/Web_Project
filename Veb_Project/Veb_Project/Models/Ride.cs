@@ -14,6 +14,7 @@ namespace Veb_Project.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public DateTime OrderTime { get; set; }
+        public int? CustomerLocationId { get; set; }
         public Location CustomerLocation { get; set; }
         public CarType CarType { get; set; }
         public Location Destionation { get; set; }

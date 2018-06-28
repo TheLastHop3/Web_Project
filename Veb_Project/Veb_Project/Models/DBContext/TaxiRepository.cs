@@ -35,48 +35,79 @@ namespace Veb_Project.Models.DBContext
                 return _instance;
             }
         }
-
-
+        public User signedIn = new User();
+        public Driver signedInD = new Driver();
+        public List<Driver> slobodniVozaci = new List<Driver>();
+        public Ride dispRide = new Ride();
+        public bool userLogged = false;
+        public bool driverLogged = false;
+        public bool dispecherLogged = false;
+        public bool dispNapravioVoznju = false;
+        public List<Ride> ridesSl = new List<Ride>();
+        public Ride selectedRideToAssign = new Ride();
+        public List<Ride> GetridesMain = new List<Ride>();
+        public List<Ride> RidesDisp= new List<Ride>();
+        public List<Ride> RideUser = new List<Ride>();
+        public List<Ride> RideDriver = new List<Ride>();
         public Dictionary<string, User> SignedUp { get; set; } = new Dictionary<string, User>();
-
+        public Dictionary<string, Driver> SignedUpD { get; set; } = new Dictionary<string, Driver>();
+        public List<Ride> AllRides { get; set; } = new List<Ride>();
+        public Dictionary<int, Car> allCars { get; set; } = new Dictionary<int, Car>();
         public bool UserExists(string username)
         {
-            return (from user in TaxiServiceRepository.Users
-                    where user.Username == username
-                    select user).ToArray().Length != 0;
-            
+            var user = TaxiRepository.Instance.getUser(username);
+            if (user == null)
+                return false;
+            return true;
+
         }
         public bool UserLogin(string username, string password)
         {
-            return (from user in TaxiServiceRepository.Users
-                    where user.Username == username && user.Password == password
-                    select user).ToArray().Length != 0;
+            var user = TaxiRepository.Instance.getUser(username);
+            if (user == null)
+                return false;
 
+            if(user.Password == password)
+            {
+                return true;
+            }
+            return false;
         }
         public bool CarExists(int carNumber)
         {
-            return (from car in TaxiServiceRepository.Cars
-                    where car.CarNumber == carNumber
-                    select car).ToArray().Length != 0;
+            var user = TaxiRepository.Instance.getCar(carNumber);
+            if (user == null)
+                return false;
+            return true;
+
         }
 
         public bool DriverExists(string username)
         {
-            return (from driver in TaxiServiceRepository.Drivers
-                    where driver.Username == username
-                    select driver).ToArray().Length != 0;
+            var user = TaxiRepository.Instance.getDriver(username);
+            if (user == null)
+                return false;
+            return true;
         }
         public bool DriverLogin(string username, string password)
         {
-            return (from driver in TaxiServiceRepository.Drivers
-                    where driver.Username == username && driver.Password == password
-                    select driver).ToArray().Length != 0;
+            var user = TaxiRepository.Instance.getDriver(username);
+            if (user == null)
+                return false;
+
+            if (user.Password == password)
+            {
+                return true;
+            }
+            return false;
+        }
+        public Car getCar(int carNumber)
+        {
+            return Instance.TaxiServiceRepository.Cars.FirstOrDefault(x => x.CarNumber == carNumber);
         }
         public User getUser(string username)
         {
-            return (from user in TaxiServiceRepository.Users
-                    where user.Username == username
-                    select user).ToList().First();
+            return Instance._taxiServiceRepository.Users.FirstOrDefault(x => x.Username == username);
         }
         
         public Ride getRide(string username)
@@ -89,12 +120,11 @@ namespace Veb_Project.Models.DBContext
 
         public Driver getDriver(string username)
         {
-            return (from driver in TaxiServiceRepository.Drivers
-                    where driver.Username == username
-                    select driver).ToList().First();
+            return Instance._taxiServiceRepository.Drivers.FirstOrDefault(x => x.Username == username);
+
         }
 
-       public List<Ride> SortRideTime()
+        public List<Ride> SortRideTime()
         {
             //treba po opadajucem
             return (from ride in TaxiServiceRepository.Rides orderby ride.OrderTime select ride).ToList();

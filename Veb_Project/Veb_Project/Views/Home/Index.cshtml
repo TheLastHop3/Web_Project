@@ -1,31 +1,1408 @@
-﻿<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS, and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>ASP.NET Web API is a framework that makes it easy to build HTTP services that reach
-        a broad range of clients, including browsers and mobile devices. ASP.NET Web API
-        is an ideal platform for building RESTful applications on the .NET Framework.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301870">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301871">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301872">Learn more &raquo;</a></p>
-    </div>
-</div>
+﻿
+<html>
+<head>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/angular.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="~/Content/Style.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrjeABCsOwW1rhi7eW6_b_fWF8OK2HeiA"></script>
+        <script type="text/javascript">
+            var user;
+            $(document).ready(function () {
 
-<script>
-    fun();
-    function fun() {
-        window.location.replace("www.google.com")
-    }
-</script>
+                var signUpInDiv = ` <span id="userNameErrorMsg" hidden></span><br>
+                Username:<input type="text" id="username" required />
+                <br /><br />
+                Password:<input type="password" id="password" required />
+                <br />
+                Remember me:<input type="checkbox" id="checkBox" />
+                <br /><br />
+                <button onclick="signIn()">SignIn</button> <button onclick="signUp()">SignUp</button>
+                `;
+
+
+
+
+                $("#signOff").click(function () {
+
+                    removeCookie("TaxiCookie");
+                $("#ulogovan").html(" ");
+                $("#options").hide();
+                $("#glavni").html(signUpInDiv);
+
+                $("#korisnik").hide();
+                $.post("/api/Taxi/SignOff");
+            });
+//Vozaca
+                $("#addDriver").click(function () {
+
+                    var addDriverAndCar = `
+        <table>
+                    <tr>
+                        <td colspan="4">Enter driver</td>
+                    </tr>
+                    <tr>
+                        <td>Username:</td><td><input type="text" id="username" reguired /></td>
+                        <td>Password:</td><td><input type="password" id="password" reguired /></td>
+                    </tr>
+                    <tr>
+                        <td>Name:</td><td> <input type="text" id="name" reguired /></td>
+                        <td>LastName:</td><td><input type="text" id="lastname" reguired /></td>
+                    </tr>
+                    <tr>
+                        <td>Sex:</td>
+                        <td>
+                            <select id="sex">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </td>
+                        <td>JMBG:</td>
+                        <td> <input type="text" id="jmbg" reguired /></td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td><td><input type="email" id="email" reguired /></td>
+                        <td>PhoneNumber:</td><td><input type="text" id="phone" required /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Enter location</td>
+                    </tr>
+                    <tr>
+                        <td>Longitude:</td><td><input type="text" id="x" required /></td>
+                        <td>Latitude:</td><td><input type="text" id="y" required /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Enter address</td>
+                    </tr>
+                    <tr>
+                        <td>Street:</td><td><input type="text" id="street" required /></td>
+                        <td>Number:</td><td><input type="text" id="number" required /></td>
+                    </tr>
+                    <tr>
+                        <td>City:</td><td><input type="text" id="city" required /></td>
+                        <td>Postal code:</td><td><input type="text" id="postal" required /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Enter car</td>
+                    </tr>
+                    <tr>
+                        <td>Year:</td><td><input type="text" id="year" required /></td>
+                        <td>Registration:</td><td><input type="text" id="registration" required /></td>
+                    </tr>
+                    <tr>
+                        <td>Car Number:</td><td><input type="text" id="carnumber" required /></td>
+                        <td>Car Type:</td>
+                        <td><select id="cartype">
+                            <option value="Van">Van</option>
+                            <option value="Sedan">Sedan</option>
+                        </select></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <button onclick="driverOk()">OK</button>
+                            <button onclick="driverCancel()">Cancel</button>
+                        </td>
+                    </tr>
+                </table>`;
+                  //  init(45.267136, 19.833549);
+                             $("#glavni").html(addDriverAndCar);
+                         });
+             //Details
+                $("#details").click(function () {
+                  
+                    $.get("/api/taxi/getuser", function (user) {
+                        
+                        let divDetails = "<h1>Details</h1><br/>Name: " + user.Name + "<br/>LastName: " + user.LastName + "<br/>Sex: ";
+                        if (user.Sex === 0) divDetails += "Male<br/>JMBG: " + user.JMBG;
+                        else divDetails += "Female<br/>JMBG: " + user.JMBG;
+                        divDetails += "<br/>Email: " + user.Email + "<br/>PhoneNumber: " + user.PhoneNumber;
+                        if (user.Role === 1) {
+                            divDetails += "<br/>Longtitude: " + user.Location.Longitude + "<br/>Latitude: " + user.Location.Latitude;
+                            divDetails += "<br/>" + user.Location.Address.Street + " " + user.Location.Address.Number + ", " + user.Location.Address.City + " " + user.Location.Address.PostalCode;
+                        }
+
+                        $("#glavni").html(divDetails);
+                    });
+                });
+//Edit
+                $("#edit").click(function(){
+                    var editTemplate = `<button onclick="editInfo()">Change your personal info</button> <button onclick="editPw()">Change your password</button>`;
+
+                $("#glavni").html(editTemplate);
+
+            });
+//add Rides
+                $("#addRide").click(function () {
+                    var divRideCustomer = `<table>
+                    <tr>
+                        <td colspan="4">Enter your current location</td>
+                    </tr>
+                    <tr>
+                        <td>Longitude:</td>
+                        <td><input type="text" id="x" required /></td>
+                        <td>Latitude:</td>
+                        <td><input type="text" id="y" required /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Enter address</td>
+                    </tr>
+                    <tr>
+                        <td>Street:</td>
+                        <td><input type="text" id="street" required /></td>
+                        <td>Number:</td>
+                        <td><input type="text" id="number" required /></td>
+                    </tr>
+                    <tr>
+                        <td>City:</td>
+                        <td><input type="text" id="city" required /></td>
+                        <td>Postal code:</td>
+                        <td><input type="text" id="postal" required /></td>
+                    </tr>
+                    <tr>
+                        <td>CarType:</td><td><select id="cartype">
+                            <option value="no-pref"></option>
+                            <option value="Van">Van</option>
+                            <option value="Sedan">Sedan</option>
+                        </select></td>
+                        <td><button onclick="addRideOk()">Ok</button></td><td><button onclick="addRideCancel()">Cancel</button></td>
+                    </tr>
+
+                </table>`;
+                            $("#glavni").html(divRideCustomer);
+                        });
+                $("#assignRide").click(function () {
+                    let rides;
+                    $.get("/api/Taxi/getRides", function (rides) {
+                        if (rides.Count == 0) {
+                            var rideDiv = "There are no rides at this moment";
+                        } else {
+                            var rideDiv = "<table>";
+                let i = 0;
+                            for (j in rides) {
+                                rideDiv += `<tr><td>${rides[j].CustomerLocation.Address.Street} ${rides[j].CustomerLocation.Address.Number} ${rides[j].CustomerLocation.Address.City}</td><td><button onclick="selectRide(${i})">Select</td></td>`
+                                i++;
+
+                }
+
+                            rideDiv += `<tr><td colspan="2"><button onclick="cancelAssign()">Cancel</button></td></tr></table>`;
+            }
+                $("#glavni").html(rideDiv);
+        });
+
+});
+                $("#checkRides").click(function () {
+                    printMainPageForDriver(false);
+                });
+
+                $("#seeCurrentRide").click(function () {
+                    let ride;
+                    $.get("/api/Taxi/CurrentRide").done(function (ride) {
+                    currRideDiv += `${ride.CustomerLocation.Address.Street} ${ride.CustomerLocation.Address.Number} ${ride.CustomerLocation.Address.City}`;
+                currRideDiv += `Select status: <select id="selectStatus"><option value="Successful">Successful</option><option> value="Unsuccessful">Unsuccessful</option></select>`;
+                        currRideDiv += `<button onclick="change()">Ok</button>`;
+                $("#glavni").html(currRideDiv);
+            });
+        });
+                $("#allTheRides").click(function () {
+                    let rides
+                $.get("/api/Taxi/AllRides",function (rides) {
+                        if (rides.Count == 0) {
+                            var rideDiv = "There are no rides at this moment";
+                        } else {
+                            var rideDiv = "<table>";
+
+                            for (i in rides) {
+                                rideDiv += `<tr><td>Drove from:</td><td> ${rides[i].CustomerLocation.Address.Street} ${rides[i].CustomerLocation.Address.Number} ${rides[i].CustomerLocation.Address.City}</td></tr>`;
+                                rideDiv += `<tr><td>Drove to:</td><td> ${rides[i].Destionation.Address.Street} ${rides[i].Destionation.Address.Number} ${rides[i].Destionation.Address.City}`;
+                                rideDiv += `<tr><td>Comment:</td><td>${rides[i].Comment.Description}</td></tr>`;
+                                if (ride.Status === 6) {
+                                    rideDiv += `<tr><td>Rate:</td><td>${rides[i].Comment.Rate}</td></tr>`;
+                                    rideDiv += `<tr><td>Cost:</td><td>${rides[i].Fare}</td></tr>`
+
+                    }
+
+                }
+                            rideDiv += "</table>"
+                    }
+                    $("#glavni").html(rideDiv);
+
+                });
+            });
+                $("#home").click(function () {
+                            $.get("/api/taxi/getuser", function (user) {
+                                if (user.Role == 0)
+                                    printMainPageForCustomer();
+                                else if (user.Role == 1)
+                                    printMainPageForDriver(true);
+                                else
+                                    printMainPageForDispecher();
+                            });
+                        });
+                $("#btnFilter").click(function () {
+                    var filter = { Status: $("#status").val() };
+                        var list;
+                    $.post("/api/taxi/filter", filter, function (list) {
+                        if (list != null) {
+                          var  rideDiv = "<table>";
+                            for (i in list) {
+
+                        rideDiv += `<tr><td>Drove from:</td><td> ${list[i].CustomerLocation.Address.Street} ${list[i].CustomerLocation.Address.Number} ${list[i].CustomerLocation.Address.City}</td></tr>`;
+                        if (list[i].Destionation != null)
+                                    rideDiv += `<tr><td>Drove to:</td><td> ${list[i].Destionation.Address.Street} ${list[i].Destionation.Address.Number} ${list[i].Destionation.Address.City}`;
+                    if (list[i].Comment != null)
+                                    rideDiv += `<tr><td>Comment:</td><td>${list[i].Comment.Description}</td></tr>`;
+                                if (list[i].Status === 6) {
+                                    if (list[i].Comment.Rate != null)
+                                        rideDiv += `<tr><td>Rate:</td><td>${list[i].Comment.Rate}</td></tr>`;
+                        if (list[i].Comment.Fare != null)
+                                        rideDiv += `<tr><td>Cost:</td><td>${list[i].Fare}</td></tr>`
+
+                    }
+
+                }
+                            rideDiv += "</table>"
+
+                            $("#glavni").html(rideDiv);
+
+
+
+                        }
+
+
+
+
+                    });
+                });
+                $("#searchDate").click(function () {
+                    var dodatno = {
+                                SearchDatum: true,
+                            DatumOd: $("#dateOd").val(),
+                            DatumDo: $("#dateDo").val()
+
+                        };
+                        var list;
+                    $.post("/api/taxi/search", dodatno, function (list) {
+                                printSearch(list);
+
+                            });
+                        });
+                $("#searchRate").click(function () {
+                    var dodatno = {
+                                SearchOcena: true,
+                            OcenaDo: $("#rateDo").val(),
+                            OcenaOd: $("#rateOd").val()
+                        };
+                        var list;
+                    $.post("/api/taxi/search", dodatno, function (list) {
+                                printSearch(list);
+
+                            });
+                        });
+                $("#searchFare").click(function () {
+                    var dodatno = {
+                                SearchCena: true,
+                            CenaDo: $("#fareDo").val(),
+                            CenaOd: $("#fareOd").val()
+                        };
+                        var list;
+                    $.post("/api/taxi/search", dodatno, function (list) {
+                                printSearch(list);
+
+                            });
+                        });
+                $("#searchDriver").click(function () {
+                    var dodatno = {
+                                SearchD: true,
+                            imeVozaca: $("#nameDriver").val(),
+                            prezimeVozaca: $("#lastDriver").val()
+                        };
+                        var list;
+                    $.post("/api/taxi/search", dodatno, function (list) {
+                                printSearch(list);
+
+                            });
+                        });
+                $("#searchCustomer").click(function () {
+                    var dodatno = {
+                                SearchC: true,
+                            imeMusterije: $("#nameCustomer").val(),
+                            prezimeMusterije: $("#lastCustomer").val()
+                        };
+                        var list;
+                    $.post("/api/taxi/search", dodatno, function (list) {
+                                printSearch(list);
+
+                            });
+                        });
+                $("#sortBtn1").click(function () {
+                    if ($("#dateCheckBox").prop('checked')) {
+                        var dodatno = {
+                                SortDatum: true
+                        }
+                        var list;
+                        $.post("/api/taxi/sort", dodatno, function (list) {
+                                printSearch(list);
+                            });
+                        }
+                    });
+                $("#sortBtn2").click(function () {
+                    if ($("#rateCheckBox").prop('checked')) {
+                        var dodatno = {
+                                SortOcena: true
+                        }
+                        var list;
+                        $.post("/api/taxi/sort", dodatno, function (list) {
+                                printSearch(list);
+                            });
+                        }
+                    });
+                $("#block").click(function () {
+                    var blockUser = `Username:<input type="text" id="blockUsername" /><br /><button onclick="blockOk()">Block</button><button onclick="unblock()">UnBlock</button><button onclick="blockCancel()">Cancel</button>`;
+                            $("#glavni").html(blockUser);
+                });
+                $("#udaljenostSort").click(function () {
+                    var list;
+                    $.get("/api/taxi/getUsersDistance", function (list) {
+                        printSearch(list);
+                    })
+
+
+                });
+                    });
+           
+            function printSearch(list) {
+                if (list != null) {
+                                rideDiv = "<table>";
+                    for (i in list) {
+
+                            rideDiv += `<tr><td>Drove from:</td><td> ${list[i].CustomerLocation.Address.Street} ${list[i].CustomerLocation.Address.Number} ${list[i].CustomerLocation.Address.City}</td></tr>`;
+                            if (list[i].Destionation != null)
+                            rideDiv += `<tr><td>Drove to:</td><td> ${list[i].Destionation.Address.Street} ${list[i].Destionation.Address.Number} ${list[i].Destionation.Address.City}`;
+                        if (list[i].Comment != null)
+                            rideDiv += `<tr><td>Comment:</td><td>${list[i].Comment.Description}</td></tr>`;
+                        if (list[i].Status === 6) {
+                            if (list[i].Comment.Rate != null)
+                                rideDiv += `<tr><td>Rate:</td><td>${list[i].Comment.Rate}</td></tr>`;
+                            if (list[i].Comment.Fare != null)
+                                rideDiv += `<tr><td>Cost:</td><td>${list[i].Fare}</td></tr>`
+
+                        }
+
+                    }
+                    rideDiv += "</table>"
+
+                                $("#glavni").html(rideDiv);
+                            }
+                        };
+                        //pokusaj signUp korisnika
+            function signIn() {
+                var loginPar = {
+                                    Username: $("#username").val(),
+                                Password: $("#password").val(),
+                            };
+                $.post("/api/Taxi/SignIn/", loginPar).done(function (user) {
+                                    alert("Uspesno ste se ulogovali");
+                                var username = $("#username").val();
+                                var password = $("#password").val();
+
+                    if ($("#checkBox").prop('checked')) {
+
+                                    setCookie("TaxiCookie", username, 365);
+                                } else {
+
+                                    setCookie("TaxiCookie", username, -1);
+                                }
+                                $("#userNameErrorMsg").hide();
+                                var ulogovan1 = `Dobrodosli ` + user.Name + ` ` + user.LastName;
+                                $("#ulogovan").html(ulogovan1);
+                                $("#options").show();
+                    $("#korisnik").show();
+                    if (user.Role === 2) {
+                                    $("#korisnik").show();
+                                $("#addDriver").show();
+                                $("#addRide").html("Create ride");
+                                $("#assignRide").show();
+                                $("#allTheRides").show();
+                                printMainPageForDispecher();
+                                console.log("1");
+                                $("#tableDisp").show();
+                                $("#block").show();
+                        $("#vozacUdaljenost").hide();
+                    } else {
+                                    $("#block").hide();
+                                $("#tableDisp").hide();
+                                $("#addDriver").hide();
+                                $("#assignRide").hide();
+                        $("#allTheRides").hide();
+                            }
+                    if (user.Role === 0) {
+                                    $("#addRide").html("Request ride");
+                                printMainPageForCustomer();
+                        $("#korisnik").show();
+                        $("#vozacUdaljenost").hide();
+                            }
+                    if (user.Role !== 1) {
+                                    $("#addRide").show();
+                                $("#checkRides").hide();
+                                $("#seeCurrentRide").hide();
+                    } else {
+                                    $("#addRide").hide();
+                                }
+                    if (user.Role === 1) {
+                        $("#korisnik").show();
+                        $("#checkRides").show();
+                        $("#seeCurrentRide").show();
+                        printMainPageForDriver(true);
+                        $("#vozacUdaljenost").show();
+                    } else {
+                        $("#vozacUdaljenost").hide();
+                    }
+
+                }).fail(function () {
+                                    $("#userNameErrorMsg").show();
+                                $("#userNameErrorMsg").html("Incorrect username/password or that user is blocked");
+
+                            });
+            };
+            function checkCookie() {
+                if (getCookie("TaxiCookie") != "") {
+                    var loginPar = {
+                                    Username: getCookie("TaxiCookie"),
+                                Logged: true
+                            };
+                    $.post("/api/Taxi/SignIn/", loginPar).done(function (user) {
+                                    alert("Uspesno ste se ulogovali");
+                                var username = $("#username").val();
+                                var password = $("#password").val();
+                                $("#userNameErrorMsg").hide();
+                                var ulogovan1 = `Dobrodosli ` + user.Name + ` ` + user.LastName;
+                                $("#ulogovan").html(ulogovan1);
+                                $("#options").show();
+                        $("#korisnik").show();
+                        if (user.Role === 2) {
+                                    $("#korisnik").show();
+                                $("#addDriver").show();
+                                $("#addRide").html("Create ride");
+                                $("#assignRide").show();
+                                $("#allTheRides").show();
+                                printMainPageForDispecher();
+                                console.log("1");
+                                $("#tableDisp").show();
+                                $("#block").show();
+                        } else {
+                                    $("#block").hide();
+                                $("#tableDisp").hide();
+                                $("#addDriver").hide();
+                                $("#assignRide").hide();
+                                $("#allTheRides").hide();
+                            }
+                        if (user.Role === 0) {
+                                    $("#addRide").html("Request ride");
+                                printMainPageForCustomer();
+                                $("#korisnik").show();
+                            }
+                        if (user.Role !== 1) {
+                                    $("#addRide").show();
+                                $("#checkRides").hide();
+                                $("#seeCurrentRide").hide();
+                        } else {
+                                    $("#addRide").hide();
+                                }
+                        if (user.Role === 1) {
+                            $("#vozacUdaljenost").show();
+                            $("#checkRides").show();
+                            $("#seeCurrentRide").show();
+                            printMainPageForDriver(true);
+                        } else {
+                            $("#voazUdaljenost").hide();
+                        }
+                    }).fail(function () {
+                                    $("#userNameErrorMsg").show();
+                                $("#userNameErrorMsg").html("Incorrect username/password or that user is blocked");
+                            });
+                        }
+            };
+
+            function setCookie(cname, cvalue, exdays) {
+                                    let d = new Date();
+                                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                                let expires = "expires=" + d.toUTCString();
+
+                                    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+
+            };
+
+            function getCookie(cname) {
+                var name = cname + "=";
+                                var ca = document.cookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                                    c = c.substring(1);
+                                }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                            }
+                        }
+                        return "";
+                    }
+
+            function removeCookie(cname){
+                var cookie = getCookie(cname);
+                if (cookie !== '') {
+                                    setCookie(cname, '', -1);
+                                }
+                            }
+            function signUpUser() {
+                                    let userLogIn = {
+                                    Username: $("#username").val(),
+                                Password: $("#password").val(),
+                                Name: $("#name").val(),
+                                LastName: $("#lastname").val(),
+                                Sex: $("#sex").val(),
+                                JMBG: $("#jmbg").val(),
+                                Email: $("#email").val(),
+                                PhoneNumber: $("#phone").val()
+                            };
+                $.post("/api/Taxi/SignUp", userLogIn).done(function () {
+                    var signUpInDiv = ` <span id="userNameErrorMsg" hidden></span><br>
+                                    Username:<input type="text" id="username" required />
+                                    <br /><br />
+                                    Password:<input type="password" id="password" required />
+                                    <br />
+                                    Remember me:<input type="checkbox" id="checkBox" />
+                                    <br /><br />
+                                    <button onclick="signIn()">SignIn</button> <button onclick="signUp()">SignUp</button>
+                                    `;
+                    $("#glavni").html(signUpInDiv);
+                }).fail(function () {
+                                        alert("Korisnik sa tim username vec postoji!!");
+                                    });
+
+                                };
+            function driverCancel() {
+                                        //$("#glavni").html() = "";
+                                        printMainPageForDispecher();
+                                    };
+            function driverOk() {
+                
+
+                    var driver = {
+                                        Username: $("#username").val(),
+                                    Password: $("#password").val(),
+                                    Name: $("#name").val(),
+                                    LastName: $("#lastname").val(),
+                                    Sex: $("#sex").val(),
+                                    JMBG: $("#jmbg").val(),
+                                    Email: $("#email").val(),
+                                    PhoneNumber: $("#phone").val(),
+                        Location: {
+                            Longitude: $("#x").val(),
+                                    Latitude: $("#y").val(),
+                            Address: {
+                                    Street: $("#street").val(),
+                                    Number: $("#number").val(),
+                                    City: $("#city").val(),
+                                    PostalCode: $("#postal").val()
+                                },
+                            },
+                        Car: {
+                                        Year: $("#year").val(),
+                                    Registration: $("#registration").val(),
+                                    CarNumber: $("#carnumber").val(),
+                                    Type: $("#cartype").val(),
+                                }
+                            }
+                            let retMessage;
+                    $.post("/api/Taxi/SignUpDriver", driver).done(function (retMessage) {
+                        if (retMessage === "Car")
+                                        alert("Invalid CarNumber");
+                                    else
+                                        alert("Invalid Username");
+                    }).fail(function () {
+                                        printMainPageForDispecher();
+                                    });
+
+
+                                };
+            function editInfo() {
+                $.get("/api/taxi/getuser", function (user) {
+                   
+
+
+
+                                            var editInfoDiv = `   <table>
+           <tr>
+               <td colspan="4" class="sredina">Personal Info</td>
+           </tr>
+           <tr>
+               <td> Name:</td><td> <input type="text" id="name" reguired value="`+ user.Name + `"/></td>
+               <td> LastName:</td><td><input type="text" id="lastname" reguired value="`+ user.LastName + `" /></td>
+           </tr>
+           <tr>
+               <td> Sex:</td>
+               <td>
+                   <select id="sex">`
+                                            if (user.Sex === 0) {
+                                                editInfoDiv += `<option value="Male" selected>Male</option>
+                                         <option value="Female">Female</option>`
+                                            } else {
+                                                editInfoDiv += `<option value="Male">Male</option>
+                                         <option value="Female" selected>Female</option>`
+                                            }
+                                            editInfoDiv += `</select>
+               </td>
+               <td> JMBG:</td>
+               <td> <input type="text" id="jmbg" reguired value="`+ user.JMBG + `"/></td>
+           </tr>
+           <tr>
+               <td> Email:</td><td><input type="email" id="email" reguired value="`+ user.Email + `"/></td>
+               <td> PhoneNumber:</td><td><input type="text" id="phone" required value="`+ user.PhoneNumber + `" /></td>
+           </tr>`;
+                                            if (user.Role === 1) {
+                                                editInfoDiv += `
+           <tr>
+               <td> Longitude:</td><td><input type="text" id="x" required value="`+ user.Location.Longitude + `"/></td>
+               <td> Latitude:</td><td><input type="text" id="y" required value="`+ user.Location.Latitude + `"/></td>
+           </tr>
+           <tr>
+               <td> Street:</td><td><input type="text" id="street" required value="`+ user.Location.Address.Street + `"/></td>
+               <td> Number:</td><td><input type="text" id="number" required value="`+ user.Location.Address.Number + `"/></td>
+           </tr>
+           <tr>
+               <td> City:</td><td><input type="text" id="city" required value="`+ user.Location.Address.City + `"/></td>
+               <td> Postal code:</td><td><input type="text" id="postal" required value="`+ user.Location.Address.PostalCode + `"/></td>
+           </tr>
+           <tr>
+               <td> Year:</td><td><input type="text" id="year" requiredvalue="`+ user.Car.Year + `" /></td>
+               <td> Registration:</td><td><input type="text" id="registration" required value="`+ user.Car.Registration + `"/></td>
+           </tr>
+           <tr>
+               <td> Car Type:</td>
+               <td><select id="cartype">`;
+                                                if (user.Car.Type === 2) {
+
+                                                    editInfoDiv += `<option value="Van">Van</option>
+                                <option value="Sedan" selected>Sedan</option>`;
+                                                } else {
+                                                    editInfoDiv += `<option value="Van" selected>Van</option>
+                                <option value="Sedan">Sedan</option>`;
+                                                }
+                                                editInfoDiv += `</select></td>
+               <td> Current Password:</td><td><input id="password" type="password"/></td>
+           </tr>
+          <tr>
+              <td colspan="4" ><button onclick="driverOkEdit()">OK</button>
+             <button onclick="driverCancelEdit()">Cancel</button></td>
+          </tr>
+       </table >`;
+                                            } else {
+                                                editInfoDiv += `<tr> <td colspan="2"> Current Password:</td><td colspan="2"><input id="password" type="password"/></td>
+                                         </tr>
+                                         <tr>
+                                                <td colspan="4"><button onclick="userOkEdit()">OK</button>
+                                                 <button onclick="userCancelEdit()">Cancel</button></td>
+                                         </tr>
+       </table >`;
+
+                                            }
+                                            $("#glavni").html(editInfoDiv);
+                                        });
+
+                                    };
+            function editPw() {
+                                        let editPwDiv = `<h1>Change your password</h1>
+                                    <table>
+                                        <tr>
+                                            <td>Current password:</td><td><input type="password" id="currPW" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>New password:</td><td><input type="password" id="newPW" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Repeat new password:</td><td><input type="password" id="rrPW" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td><button onclick="editPwOk()">Ok</button></td><td><button onclick="editPwCancel()">Cancel</button></td>
+                                        </tr>
+                                    </table>`
+                   $("#glavni").html(editPwDiv);
+               };
+            function driverCancelEdit () {
+                                        //$("#glavni").html() = ""; print driver
+                                        printMainPageForDriver(true);
+
+                                    };
+            function driverOkEdit() {
+                                        $.get("/api/taxi/getuser", function (user) {
+                                            if (user.Password == $("#password").val()) {
+                                                printMainPageForDriver(true);
+                                                var driver = {
+                                                    Name: $("#name").val(),
+                                                    LastName: $("#lastname").val(),
+                                                    Sex: $("#sex").val(),
+                                                    JMBG: $("#jmbg").val(),
+                                                    Email: $("#email").val(),
+                                                    PhoneNumber: $("#phone").val(),
+                                                    Location: {
+                                                        Longitude: $("#x").val(),
+                                                        Latitude: $("#y").val(),
+                                                        Address: {
+                                                            Street: $("#street").val(),
+                                                            Number: $("#number").val(),
+                                                            City: $("#city").val(),
+                                                            PostalCode: $("#postal").val(),
+                                                        },
+                                                    },
+                                                    Car: {
+                                                        Year: $("#year").val(),
+                                                        Registration: $("#registration").val(),
+                                                        Type: $("#cartype").val(),
+                                                    }
+                                                }
+                                                $.post("/api/Taxi/EditDriver", driver).done(function () {
+
+
+                                                    var ulogovan1 = `Dobrodosli ` + driver.Name + ` ` + driver.LastName;
+                                                    $("#ulogovan").html(ulogovan1);
+                                                    //$("#glavni").html() = ""; print driver
+                                                    printMainPageForDriver(true);
+                                                    alert("Successful changed your personal info");
+
+                                                });
+                                            } else {
+                                                alert("Wrong password");
+                                            }
+                                        });
+                                    };
+            function userOkEdit() {
+                                        $.get("/api/taxi/getuser", function (user) {
+
+                                            if (user.Password == $("#password").val()) {
+                                                //$("#glavni").html() = "";
+                                                if (user.Role === 0) {
+                                                    printMainPageForCustomer();
+                                                } else {
+                                                    printMainPageForDispecher();
+                                                }
+                                                var userEdit = {
+                                                    Name: $("#name").val(),
+                                                    LastName: $("#lastname").val(),
+                                                    Sex: $("#sex").val(),
+                                                    JMBG: $("#jmbg").val(),
+                                                    Email: $("#email").val(),
+                                                    PhoneNumber: $("#phone").val()
+                                                };
+
+                                                $.post("/api/Taxi/EditUser", userEdit).done(function () {
+                                                    alert("Successful changed your personal info");
+                                                    var ulogovan1 = `Dobrodosli ` + userEdit.Name + ` ` + userEdit.LastName;
+                                                    $("#ulogovan").html(ulogovan1);
+                                                    if (user.Role === 0) {
+                                                        printMainPageForCustomer();
+                                                    } else {
+                                                        printMainPageForDispecher();
+                                                    }
+                                                });
+
+                                            } else {
+                                                alert("Wrong password");
+                                            }
+                                        });
+                                    };
+            function userCancelEdit() {
+                                        // $("#glavni").html() = "";
+                                        $.get("/api/taxi/getuser", function (user) {
+
+                                            if (user.Role === 0) {
+                                                printMainPageForCustomer();
+                                            } else {
+                                                printMainPageForDispecher();
+                                            }
+                                        });
+                                    };
+            function editPwOk() {
+                                        $.get("/api/Taxi/GetUser").done(function (user) {
+                                           
+                                           
+                                            if (user.Password == $("#currPW").val()) {
+                                                if ($("#newPW").val() == $("#rrPW").val()) {
+                                                    
+                                                    var pw = { Password: $("#newPW").val() };
+                                                    $.post("/api/Taxi/EditPassword", pw).done(function () {
+                                                        alert("Successful changed your password");
+                                                        user.Password = $("#newPw").val();
+                                                        //$("#glavni").html() = "";
+                                                        if (user.Role == 0) {
+                                                            printMainPageForCustomer();
+                                                        } else if (user.Role == 1) {
+                                                            printMainPageForDriver(true);
+                                                        } else {
+                                                            printMainPageForDispecher();
+                                                        }
+                                                        removeCookie("TaxiCookie");
+                                                        $("#ulogovan").html(" ");
+                                                        $("#options").hide();
+                                                        $("#glavni").html(signUpInDiv);
+
+                                                        $("#korisnik").hide();
+                                                        $.post("/api/Taxi/SignOff");
+                                                    });
+
+                                                } else {
+                                                    alert("Mismached passwords");
+                                                }
+                                            } else {
+                                                alert("Wrong current password")
+                                            }
+                                        });
+                                    };
+            function editPwCancel() {
+                                        //$("#glavni").html() = "";
+                                        $.get("/api/taxi/getuser", function (user) {
+
+                                            if (user.Role == 0) {
+                                                printMainPageForCustomer();
+                                            } else if (user.Role == 1) {
+                                                printMainPageForDriver(true);
+                                            } else {
+                                                printMainPageForDispecher();
+                                            }
+                                        });
+                                    };
+            function addRideOk() {
+                    var loctype = {
+                                        CustomerLocation: {
+                                        Longitude: $("#x").val(),
+                                    Latitude: $("#y").val(),
+                            Address: {
+                                        Street: $("#street").val(),
+                                    Number: $("#number").val(),
+                                    City: $("#city").val(),
+                                    PostalCode: $("#postal").val(),
+                                }
+                            },
+                            CarType: $("#cartype").val()
+                        };
+
+                        var message;
+                    $.post("/api/Taxi/addRide", loctype).done(function (message) {
+                        if (message == "") {
+                            var data;
+                            $.get("/api/Taxi/getDrivers", function (data) {
+                                        let freeDrivers = "<table>";
+                                        var i = 0;
+                                for (j in data) {
+                                            freeDrivers += `<tr><td>${data[j].Name} ${data[j].LastName} ${data[j].Car.CarNumber}</td><td><button onclick="select(${i})">Select</td></td>`
+                                    i++;
+
+                                    }
+                                freeDrivers += "</table>";
+                                });
+                                printMainPageForDispecher();
+                        } else {
+                                        alert(message);
+                                    }
+
+                                });
+                            };
+            function addRideCancel() {
+                                        $.get("/api/taxi/getuser", function (user) {
+
+                                            if (user.Role === 0) {
+                                                printMainPageForCustomer();
+                                            } else if (user.Role === 2) {
+                                                printMainPageForDispecher();
+                                            }
+                                        });
+                                    };
+            function cancelAssign() {
+                                        printMainPageForDispecher();
+                                    };
+                                //unos komentara nakon otkazivanja voznje
+            function CommentOk() {
+                    var Comment = {
+                                        Description: $("#description").val(),
+                                    Rate: $("#rate").val()
+                                };
+                    $.post("/api/Taxi/Comment", Comment).done(function () {
+                                        printMainPageForCustomer();
+                                    });
+                                };
+            function change() {
+
+                    if ($("selectedStatus").val() === 6) {
+                        var response = `<h3>Destination</hr><br />`;
+                                    response += `Longitude:
+                                     <input type="text" id="x" required /><br />
+                                    Latitude:
+                                     <input type="text" id="y" required /><br />
+                                    <h3> Enter address<h3></br>
+                                        Street:
+                                     <input type="text" id="street" required /><br />
+                                        Number:
+                                     <input type="text" id="number" required /><br />
+                                        City:
+                                     <input type="text" id="city" required /><br />
+                                        Postal code:</td>
+                                    <input type="text" id="postal" required /><br />
+                                    <h3>Fare<h3>
+                                        <input type="text" id="fare" required /><br />
+                                        <button onclick="successRide()">Ok</button>`;
+                           $("#glavni").html(response);
+
+                    } else {
+                        var comm = `Comment:<input type="text" id="commDriver" width=150 height=150/><br /><button onclick="postaviComDriver()">Ok</driver>`;
+                                        $("#glavni").html(comm);
+                                    }
+
+                                };
+            function postaviComDriver() {
+                                            let ride = {
+                                            Comment: {
+                                            Description: $("#commDriver").val()
+                                    },
+                                    Status: $("selectedStatus").val()
+                                }
+
+                                $.post("/api/Taxi/FinishedRide",ride);
+                                printMainPageForDriver(true);
+                            };
+            function successRide() {
+                                            let ride = {
+                                            Status: $("selectedStatus").val(),
+                        CustomerLocation: {
+                                            Longitude: $("#x").val(),
+                                        Latitude: $("#y").val(),
+                            Address: {
+                                            Street: $("#street").val(),
+                                        Number: $("#number").val(),
+                                        City: $("#city").val(),
+                                        PostalCode: $("#postal").val()
+                                    }
+                                },
+                                Fare : $("#fare").val()
+                                };
+
+
+                            $.post("/api/Taxi/FinishedRide",ride);
+
+                            printMainPageForDriver(true);
+                        };
+            function addComment() {
+                    var commentDiv = `<h3>Comment</hr><br />
+                                        Description:<input type="text" id="description" /></br>
+                                        Rate:<select id=rate"><option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option></select>
+                                        </br><button onclick="addCommentOk()">Ok</button><button onclick="addCommentCancel()">Cancel</button>`;
+};
+            function addCommentOk() {
+                    var comment = {
+                                Description: $("#description").val(),
+                            Rate: $("#rate").val()
+                        };
+                    $.post("/api/Taxi/Comment", comment).done(function () {
+                                printMainPageForCustomer();
+                            });
+                        };
+            function addCommentCancel() {
+                                printMainPageForCustomer();
+                            };
+            function blockOk() {
+                var uss = {
+
+                    Username: $("#blockUsername").val()
+                };
+                                $.post("/api/Taxi/Block/", uss).done(function () {
+                                    alert("Successfuly blocked user");
+                                    printMainPageForDispecher();
+                                }).fail(function () {
+                                    alert("Unsuccessfuly blocked user");
+
+                                });
+                            };
+            function unblock() {
+                var uss = {
+
+                    Username: $("#blockUsername").val()
+                };
+                                $.post("/api/Taxi/UnBlock/", uss).done(function () {
+                                    alert("Successfuly unblocked user");
+                                    printMainPageForDispecher();
+                                }).fail(function () {
+                                    alert("Unsuccessfuly unblocked user");
+
+                                });
+
+                            };
+            function blockCancel() {
+                                printMainPageForDispecher();
+                            };
+
+
+
+            function select(i) {
+                                $.get("/api/Taxi/SelectDriver", i).done(function () {
+                                    $.get("/api/taxi/getuser", function (user) {
+                                        if (user.Role === 0) {
+                                            printMainPageForCustomer();
+                                        } else if (user.Role === 2) {
+                                            printMainPageForDispecher();
+                                        }
+
+                                    });
+                                });
+                            }
+            function selectRide(i) {
+                                $.get("/api/Taxi/SelectRide", i).done(function () {
+                                    let data;
+                                    $.get("/api/Taxi/getDrivers", function (data) {
+                                        let freeDrivers = "<table>";
+                                        let i = 0;
+                                        for (j in data) {
+                                            freeDrivers += `<tr><td>${data[j].Name} ${data[j].LastName} ${data[j].Car.CarNumber}</td><td><button onclick="select(${i})">Select</td></td>`
+                                            i++;
+
+                                        }
+                                        freeDrivers += "</table>";
+                                    });
+                                })
+                            }
+                            //pritisni signUp dugme
+                            function signUp() {
+                                let divVal = `Username:<input type="text" id="username" reguired /><br />
+                            Password:<input type="password" id="password" reguired /><br />
+                            Name:<input type="text" id="name" reguired /><br />
+                            LastName:<input type="text" id="lastname" reguired /><br />
+                            Sex:<select id="sex">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select><br />
+                            JMBG:<input type="text" id="jmbg" reguired /><br />
+                            Email:<input type="email" id="email" reguired /><br />
+                            PhoneNumber:<input type="text" id="phone" required /><br />
+                            <button onclick="signUpUser()">SignUp</button> <button onclick="signUpCancel()">Cancel</button>
+
+                            `;
+                        $("#glavni").html(divVal);
+                    };
+            function printMainPageForCustomer() {
+                var data
+                $.get("/api/Taxi/getRidesMain", function (data) {
+                                let mainCustomer = "There are no rides at this moment";
+                            var i = 0;
+                    for (j in data) {
+
+                                mainCustomer = `${data[j].OrderTime}Location: ${data[j].CustomerLocation.Address.Street} ${data[j].CustomerLocation.Address.Number} ${data[j].CustomerLocation.Address.City}`;
+                            if (data[j].Status === 0) {
+                                mainCustomer += `<button onclick="cancelRide(${i})">Cancel</button>`
+                            } else {
+                                mainCustomer += `<br/>Destination: ${data[j].Destionation.Address.Street} ${data[j].Destionation.Address.Number} ${data[j].Destionation.Address.City} Fare: ${data[j].Fare}`;
+                            mainCustomer += `</br>${data[j].Comment.Customer.Username} ${data[j].Comment.Description} ${data[j].Comment.Rate} ${data[j].Comment.PublishDate}`
+                    }
+
+                        if (data[j].Status === 6 && data[j].Comment.Description != "") {
+                            mainCustomer += `<br/><button onclick="addComment()">Comment</button>`;
+                        }
+                        i++;
+
+                    }
+
+                    $("#glavni").html(mainCustomer);
+                });
+            }
+                function cancelRide(i) {
+                            $.post("/api/Taxi/CancelRide", i).done(function () {
+
+                                alert("Successfuly canceled the ride");
+                                var commentDiv = ` Description:<input type="text"  id="description" required/>
+                                            <br/>
+                                            Rate:<select id="rate">
+                                            <option value="0" selected>0</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            </select>
+                                            <button onclick="commentOk()">Ok</button>
+                                            `;
+                                $("#glavni").html(commentDiv);
+                            }).fail(function () {
+                                alert("Unsuccesfuly canceled the ride,some of the drivers already picked it up");
+                                printMainPageForCustomer();
+                            });
+                        }
+            function signUpCancel() {
+                var signUpInDiv = ` <span id="userNameErrorMsg" hidden></span><br>
+                            Username:<input type="text" id="username" required />
+                            <br /><br />
+                            Password:<input type="password" id="password" required />
+                            <br />
+                            Remember me:<input type="checkbox" id="checkBox" />
+                            <br /><br />
+                            <button onclick="signIn()">SignIn</button> <button onclick="signUp()">SignUp</button>
+                            `;
+        $("#glavni").html(signUpInDiv);
+
+};
+            function printMainPageForDispecher() {
+                                $.get("/api/Taxi/getRidesMain", function (freeRides) {
+                                    let rideDiv = "There are no rides at this moment";
+                                    if(freeRides.Count > 0)
+                                        rideDiv = "<table>";
+                                    for (i in freeRides) {
+
+                                        rideDiv += `<tr><td>Drove from:</td><td> ${freeRides[i].CustomerLocation.Address.Street} ${freeRides[i].CustomerLocation.Address.Number} ${freeRides[i].CustomerLocation.Address.City}</td></tr>`;
+                                        if (freeRides[i].Destionation != null)
+                                            rideDiv += `<tr><td>Drove to:</td><td> ${freeRides[i].Destionation.Address.Street} ${freeRides[i].Destionation.Address.Number} ${freeRides[i].Destionation.Address.City}`;
+                                        if (freeRides[i].Comment != null)
+                                            rideDiv += `<tr><td>Comment:</td><td>${freeRides[i].Comment.Description}</td></tr>`;
+                                        if (freeRides[i].Status === 6) {
+                                            if (freeRides[i].Comment.Rate != null)
+                                                rideDiv += `<tr><td>Rate:</td><td>${freeRides[i].Comment.Rate}</td></tr>`;
+                                            if (freeRides[i].Comment.Fare != null)
+                                                rideDiv += `<tr><td>Cost:</td><td>${freeRides[i].Fare}</td></tr>`
+
+                                        }
+
+                                    }
+                                    rideDiv += "</table>"
+
+                                    $("#glavni").html(rideDiv);
+                                });
+                            }
+            function printMainPageForDriver(main) {
+                                let freeRides;
+                if (main) {
+                                $.get("/api/Taxi/getRidesMain", function (freeRides) {
+                                    let rideDiv = "There are no rides at this moment";
+                                    var i = 1;
+                                        if(freeRides.Count > 0)rideDiv = "<table>";
+                                    for (j in freeRides) {
+
+                                        rideDiv += `<tr><td>${i}. Drove from:</td><td> ${freeRides[j].CustomerLocation.Address.Street} ${freeRides[j].CustomerLocation.Address.Number} ${freeRides[j].CustomerLocation.Address.City}</td></tr>`;
+                                        if(freeRides[j].Destionation != null)
+                                        rideDiv += `<tr><td>Drove to:</td><td> ${freeRides[j].Destionation.Address.Street} ${freeRides[j].Destionation.Address.Number} ${freeRides[j].Destionation.Address.City}`;
+                                        if(freeRides[j].Comment != null)
+                                        rideDiv += `<tr><td>Comment:</td><td>${freeRides[j].Comment.Description}</td></tr>`;
+                                        if (freeRides[j].Status === 6) {
+                                            if (freeRides[j].Comment.rate != null)
+                                                rideDiv += `<tr><td>Rate:</td><td>${freeRides[j].Comment.Rate}</td></tr>`;
+                                            if(freeRides[j].Fare != null)
+                                            rideDiv += `<tr><td>Cost:</td><td>${freeRides[j].Fare}</td></tr>`
+
+                                        }
+                                        i++;
+                                    }
+                                    rideDiv += "</table>"
+
+                                    $("#glavni").html(rideDiv);
+                                });
+
+                            } else {
+                                $.get("/api/Taxi/getRides", function (freeRides) {
+                                    if (freeRides.Count == 0) {
+                                       var rideDiv = "There are no rides at this moment";
+                                    } else {
+                                        let rideDiv = "<table>";
+                                        var i = 0;
+                                        for (j in freeRides) {
+                                            rideDiv += `<tr><td>${freeRides[j].CustomerLocation.Address.Street} ${freeRides[j].CustomerLocation.Address.Number} ${freeRides[j].CustomerLocation.Address.City} | ${freeRides[j].Status}</td><td><button onclick="selectRideD(${i})">Select</td></td>`;
+                                            i++;
+
+                                        }
+
+                                        rideDiv += `</table>`;
+                                    }
+                                    $("#glavni").html(rideDiv);
+                                });
+                            }
+            };
+            function SelectRideD(i) {
+                                $.post("api/Taxi/AssignDriver", i).done(function () {
+                                    alert("Succesfuly picked up ride");
+                                }).fail(function () {
+                                    alert("Some of drivers already picked up that ride request");
+                                });
+                            printMainPageForDriver(true);
+                    }
+    </script>
+
+</head>
+<body onload="checkCookie()">
+    <br />
+    <p id="ulogovan" align ="right"></p>
+    <div id="options" hidden align="right">
+        <button id="home">Home</button> <button id="block">Block/Unblock</button> <button id="allTheRides">See all the rides</button> <button id="checkRides">Check available rides</button> <button id="seeCurrentRide">See Current Ride</button> <button id="assignRide">AssignRide</button> <button id="addRide">ride</button><button id="addDriver">Add Driver</button> <button id="details">Details</button> <button id="edit">Edit</button> <button id="signOff">SignOff</button>
+    </div>
+    <div id="glavni" class="glavniDiv">
+        <span id="userNameErrorMsg" hidden></span><br />
+        Username:<input type="text" id = "username" required/>
+        <br /><br />
+        Password:<input type="password" id ="password" required/>
+        <br />
+        Remember me:<input type="checkbox" id="checkBox"/>
+        <br /><br />
+        <button onclick="signIn()">SignIn</button> <button  onclick="signUp()">SignUp</button>
+    </div>
+    <br />
+    <div id="korisnik" hidden class="korisnikDiv">
+        <table>
+            <tr>
+                <td colspan="2">Filter by status</td>
+            </tr>
+            <tr>
+                <td>Select status</td>
+                <td>
+                 <select id="status">
+                     <option value="NoFilter">No Filter</option>
+                     <option value="Processed">Processed</option>
+                     <option value="Ordered">Ordered</option>
+                     <option value="Accepted">Accepted</option>
+                     <option value="Canceled">Canceled</option>
+                     <option value="Successful">Successful</option>
+                     <option value="Unsuccessful">Unsuccessful</option>
+                 </select>             
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="btnFilter">Filter</button></td>
+            </tr>
+        </table>
+
+        <br />
+        <table>
+            <tr>
+                <td colspan="2">Sort</td>
+            </tr>
+            <tr>
+                <td>Date</td><td><input type="checkbox" id="dateCheckBox" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="sortBtn1">Sort</button></td>
+            </tr>
+            <tr>
+                <td>Rate</td><td><input type="checkbox"  id="rateCheckBox" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="sortBtn2">Sort</button></td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td colspan="2">Search by date:</td>
+            </tr>
+            <tr>
+                <td>Od:</td>
+                <td><input type="datetime" id="dateOd" /></td>
+            </tr>
+            <tr>
+                <td>Do:</td>
+                <td><input type="datetime" id="dateDo" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchDate">Search</button></td>
+            </tr>
+            <tr>
+                <td colspan="2">Search by rate:</td>
+            </tr>
+            <tr>
+                <td>Od:</td>
+                <td>
+                    <select id="rateOd">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Do:</td>
+                <td>
+                    <select id="rateDo">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchRate">Search</button></td>
+            </tr>
+            <tr>
+                <td colspan="2">Search by Fare:</td>
+            </tr>
+            <tr>
+                <td>Od:</td>
+                <td><input type="text" id="fareOd" /></td>
+            </tr>
+            <tr>
+                <td>Do:</td>
+                <td><input type="text" id="fareDo" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchFare">Search</button></td>
+            </tr>
+        </table>
+        <br />
+        <table id="tableDisp">
+            <tr>
+                <td colspan="2">Search driver</td>
+            </tr>
+            <tr>
+                <td>Name:</td>
+                <td><input type="text" id="nameDriver" /></td>
+            </tr>
+            <tr>
+                <td>LastName:</td>
+                <td><input type="text" id="lastDriver" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchDriver">Search</button></td>
+            </tr>
+            <tr>
+                <td colspan="2">Search customer</td>
+            </tr>
+            <tr>
+                <td>Name:</td>
+                <td><input type="text" id="nameCustomer" /></td>
+            </tr>
+            <tr>
+                <td>LastName:</td>
+                <td><input type="text" id="lastCustomer" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="searchCustomer">Search</button></td>
+            </tr>
+        </table>
+        <table id="vozacUdaljenost">
+            <tr>
+                <td colspan="2">Sort by distance</td>
+            </tr>
+            <tr>
+                <td>Sort:</td><td><input type="checkbox" id="udaljenostCheckBox" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button id="udaljenostSort">Sort</button></td>
+            </tr>
+        </table>
+    </div>
+
+
+ 
+   
+   
+</body>
+</html>
+
