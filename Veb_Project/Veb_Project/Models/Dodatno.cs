@@ -26,5 +26,9 @@ namespace Veb_Project.Models
         public RideStatus Status { get; set; }
         public bool SortDatum { get; set; }
         public bool SortOcena { get; set; }
+        public int Selected { get; set; }
+        public string Description { get; set; }
+        public string Rate { get; set; }
+        public int brojac { get; set; }
     }
 }

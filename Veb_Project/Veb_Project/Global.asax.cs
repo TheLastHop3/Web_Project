@@ -134,7 +134,7 @@ namespace Veb_Project
                   TaxiRepository.Instance.AllRides.Add(item);
               }
               */
-            foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Users)
+           /* foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Users)
             {
                 if(!TaxiRepository.Instance.SignedUp.ContainsKey(item.Username))
                 TaxiRepository.Instance.SignedUp.Add(item.Username,item);
@@ -145,10 +145,10 @@ namespace Veb_Project
             TaxiRepository.Instance.AllRides.Add(ride);
             TaxiRepository.Instance.AllRides.Add(ride2);
             TaxiRepository.Instance.AllRides.Add(ride1);
-            
-            TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(ride);
+            */
+            //TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(ride);
             TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
-            LoadDispechers(@"C:\Users\andre\Desktop\Web_Project\Veb_Project\Veb_Project\App_Data\Dispechers.txt");
+           // LoadDispechers(@"F:\Web_Project\Veb_Project\Veb_Project\App_Data\Dispechers.txt");
         }
 
         private void LoadDispechers(string path)

@@ -109,7 +109,7 @@ namespace Veb_Project.Models.DBContext
         {
             return Instance._taxiServiceRepository.Users.FirstOrDefault(x => x.Username == username);
         }
-        
+       
         public Ride getRide(string username)
         {
             return (from ride in TaxiServiceRepository.Rides
@@ -120,7 +120,7 @@ namespace Veb_Project.Models.DBContext
 
         public Driver getDriver(string username)
         {
-            return Instance._taxiServiceRepository.Drivers.FirstOrDefault(x => x.Username == username);
+            return Instance._taxiServiceRepository.Drivers.Include("Location").Include("Location.Address").FirstOrDefault(x => x.Username == username);
 
         }
 

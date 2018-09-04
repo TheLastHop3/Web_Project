@@ -13,3 +13,7 @@
 .desno{
     text-align:right;
 }
+#myMap {
+    height: 350px;
+    width: 680px;
+}

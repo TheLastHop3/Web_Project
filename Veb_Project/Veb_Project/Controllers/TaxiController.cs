@@ -17,10 +17,11 @@ namespace Veb_Project.Controllers
         //lat = pow(driver.lat - custom.lat)
         //log = pow(driver.log - custom.log)
         //return sqrt(lat + log)
-
+        //check dodaj komentar(user),unseccessful
         
+        //google maps request edit tj saljem samo street i city,change
         [HttpGet]
-        [Route("api/taxi/getuser")]
+        [Route("api/Taxi/GetUser")]
         public IHttpActionResult GetUser()
         {
             if (TaxiRepository.Instance.userLogged|| TaxiRepository.Instance.dispecherLogged)
@@ -31,7 +32,7 @@ namespace Veb_Project.Controllers
             }
         }
         [HttpPost]
-        [Route("api/taxi/signin")]
+        [Route("api/Taxi/SignIn")]
         public IHttpActionResult SignIn([FromBody]LoginParam login)
         {
             if (login.Logged)
@@ -78,7 +79,7 @@ namespace Veb_Project.Controllers
            
         }
         [HttpPost]
-        [Route("api/taxi/signup")]
+        [Route("api/Taxi/SignUp")]
         public IHttpActionResult SignUp([FromBody]User user)
         {
             User tmp = new User();
@@ -101,7 +102,7 @@ namespace Veb_Project.Controllers
 
         }
         [HttpPost]
-        [Route("api/taxi/signoff")]
+        [Route("api/Taxi/SignOff")]
         public void SignOff()
         {
             if(TaxiRepository.Instance.signedIn.Role == UserRole.Customer)
@@ -118,11 +119,13 @@ namespace Veb_Project.Controllers
             }
         }
         [HttpPost]
-        [Route("api/taxi/signupdriver")]
+        [Route("api/Taxi/SignUpDriver")]
         public IHttpActionResult SignUpDriver([FromBody]Driver driver)
         {
             Driver tmp = new Driver();
+            tmp.Car = new Car();
             tmp = driver;
+            tmp.Car = driver.Car;
             //tmp.Car.Driver = driver;
             if (!TaxiRepository.Instance.DriverExists(driver.Username) && !TaxiRepository.Instance.UserExists(tmp.Username))
             {
@@ -151,7 +154,7 @@ namespace Veb_Project.Controllers
 
         }
         [HttpPost]
-        [Route("api/taxi/editdriver")]
+        [Route("api/Taxi/EditDriver")]
         public IHttpActionResult EditDriver([FromBody]Driver driver)
         {
             bool found = false;
@@ -172,8 +175,7 @@ namespace Veb_Project.Controllers
                         item.Location.Longitude = driver.Location.Longitude;
                         item.Location.Address.Street = driver.Location.Address.Street;
                         item.Location.Address.City = driver.Location.Address.City;
-                        item.Location.Address.Number = driver.Location.Address.Number;
-                        item.Location.Address.PostalCode = driver.Location.Address.PostalCode;
+
                         item.Car.Year = driver.Car.Year;
                         item.Car.Registration = driver.Car.Registration;
                         item.Car.Type = driver.Car.Type;
@@ -199,7 +201,7 @@ namespace Veb_Project.Controllers
 
         }
         [HttpPost]
-        [Route("api/taxi/edituser")]
+        [Route("api/Taxi/EditUser")]
         public IHttpActionResult EditUser([FromBody]User user)
         {
             bool found = false;
@@ -245,7 +247,7 @@ namespace Veb_Project.Controllers
 
         }
         [HttpPost]
-        [Route("api/taxi/editpassword")]
+        [Route("api/Taxi/EditPassword")]
         public IHttpActionResult EditPassword([FromBody]LoginParam password)
         {
             bool found = false;
@@ -306,7 +308,7 @@ namespace Veb_Project.Controllers
             return NotFound();
         }
         [HttpPost]
-        [Route("api/taxi/addride")]
+        [Route("api/Taxi/Addride")]
         public IHttpActionResult AddRide([FromBody]Ride loctype)
         {
             Ride ride = new Ride();
@@ -317,8 +319,7 @@ namespace Veb_Project.Controllers
             ride.CarType = loctype.CarType;
             ride.CustomerLocation.Address.City = loctype.CustomerLocation.Address.City;
             ride.CustomerLocation.Address.Street = loctype.CustomerLocation.Address.Street;
-            ride.CustomerLocation.Address.Number = loctype.CustomerLocation.Address.Number;
-            ride.CustomerLocation.Address.PostalCode = loctype.CustomerLocation.Address.PostalCode;
+
             ride.CustomerLocation.Latitude = loctype.CustomerLocation.Latitude;
             ride.CustomerLocation.Longitude = loctype.CustomerLocation.Longitude;
 
@@ -340,8 +341,6 @@ namespace Veb_Project.Controllers
                 newRide.CarType = loctype.CarType;
                 newRide.CustomerLocation.Address.City = loctype.CustomerLocation.Address.City;
                 newRide.CustomerLocation.Address.Street = loctype.CustomerLocation.Address.Street;
-                newRide.CustomerLocation.Address.Number = loctype.CustomerLocation.Address.Number;
-                newRide.CustomerLocation.Address.PostalCode = loctype.CustomerLocation.Address.PostalCode;
                 newRide.CustomerLocation.Latitude = loctype.CustomerLocation.Latitude;
                 newRide.CustomerLocation.Longitude = loctype.CustomerLocation.Longitude;
               
@@ -365,25 +364,27 @@ namespace Veb_Project.Controllers
         }
 
         [HttpGet]
-        [Route("api/taxi/getdrivers")]
+        [Route("api/Taxi/GetDrivers")]
         public List<Driver> getDrivers()
         {
             bool slobodan;
             TaxiRepository.Instance.slobodniVozaci.Clear();
             if (TaxiRepository.Instance.TaxiServiceRepository.Drivers.Count() > 0)
             {
-                foreach (var driver in TaxiRepository.Instance.SignedUpD.Values)
+                foreach (var driver in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
                 {
 
                     slobodan = true;
-                foreach (var item in TaxiRepository.Instance.AllRides)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Driver.Car"))
                 {
-                        if (item.Driver.Username != null)
+                        if (item.Driver != null)
                         {
                             if (item.Status == RideStatus.Accepted && item.Driver.Username == driver.Username)
                             {
                                 slobodan = false;
                             }
+                        }
+                }
                             if (slobodan)
                             {
                                 TaxiRepository.Instance.slobodniVozaci.Add(driver);
@@ -392,8 +393,6 @@ namespace Veb_Project.Controllers
                                 //TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
                             }
-                        }
-                }
                 }
 
                 return TaxiRepository.Instance.slobodniVozaci;
@@ -402,7 +401,7 @@ namespace Veb_Project.Controllers
             return new List<Driver>();
         }
         [HttpGet]
-        [Route("api/taxi/getrides")]
+        [Route("api/Taxi/getRides")]
         public List<Ride> getRides()
         {
 
@@ -410,7 +409,7 @@ namespace Veb_Project.Controllers
             TaxiRepository.Instance.ridesSl.Clear();
             if (TaxiRepository.Instance.dispecherLogged)
             {
-                foreach (var item in TaxiRepository.Instance.AllRides)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("CustomerLocation").Include("CustomerLocation.Address"))
                 {
 
                     if (item.Status == RideStatus.Ordered || item.Status == RideStatus.Processed)
@@ -423,15 +422,26 @@ namespace Veb_Project.Controllers
             }
             else if (TaxiRepository.Instance.driverLogged)
             {
-                foreach (var item in TaxiRepository.Instance.AllRides)
+                bool slobodan = true;
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver"))
                 {
-
-                    if (item.Status == RideStatus.Ordered)
+                    if(item.Driver != null && item.Driver.Username == TaxiRepository.Instance.signedInD.Username && item.Status == RideStatus.Accepted)
                     {
-                        TaxiRepository.Instance.ridesSl.Add(item);
+                        slobodan = false;
                     }
+                }
+                if (slobodan)
+                {
+                    foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("CustomerLocation").Include("CustomerLocation.Address"))
+                    {
+
+                        if (item.Status == RideStatus.Ordered || item.Status == RideStatus.Processed)
+                        {
+                            TaxiRepository.Instance.ridesSl.Add(item);
+                        }
 
 
+                    }
                 }
             }
 
@@ -440,24 +450,24 @@ namespace Veb_Project.Controllers
         }
         //select driver thats gonna accept the ride
         [HttpGet]
-        [Route("api/taxi/selectdriver")]
-        public IHttpActionResult SelectDriver([FromUri]int i)
+        [Route("api/Taxi/SelectDriver")]
+        public IHttpActionResult SelectDriver([FromUri]Dodatno dodatno)
         {
-            bool found = false;
+           /* bool found = false;
             if (TaxiRepository.Instance.dispNapravioVoznju)
             {
-                TaxiRepository.Instance.slobodniVozaci[i].Rides.Add(TaxiRepository.Instance.dispRide);
-                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+                TaxiRepository.Instance.slobodniVozaci[dodatno.brojac].Rides.Add(TaxiRepository.Instance.dispRide);
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Dispatcher").Include("Driver"))
                 {
-                    if (item.Dispatcher.Username != null || item.Dispatcher.Username != "")
+                    if (item.Dispatcher != null)
                     {
 
                         if (TaxiRepository.Instance.dispRide.Dispatcher.Username == item.Dispatcher.Username)
                         {
                             TaxiRepository.Instance.dispRide.Status = RideStatus.Accepted;
-                            TaxiRepository.Instance.dispRide.Driver = TaxiRepository.Instance.slobodniVozaci[i];
-                            item.Driver = TaxiRepository.Instance.slobodniVozaci[i];
-                            //TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(TaxiRepository.Instance.dispRide);
+                            TaxiRepository.Instance.dispRide.Driver = TaxiRepository.Instance.slobodniVozaci[dodatno.brojac];
+                            item.Driver = TaxiRepository.Instance.slobodniVozaci[dodatno.brojac];
+                            TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(TaxiRepository.Instance.dispRide);
                             item.Status = RideStatus.Accepted;
                             found = true;
                             break;
@@ -469,7 +479,7 @@ namespace Veb_Project.Controllers
                         TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
                 }
-                foreach (var item in TaxiRepository.Instance.AllRides)
+               /* foreach (var item in TaxiRepository.Instance.AllRides)
                 {
                     if (item.Dispatcher.Username != null)
                     {
@@ -486,62 +496,64 @@ namespace Veb_Project.Controllers
              
             }
             else
-            {
+            {*/
 
                 TaxiRepository.Instance.selectedRideToAssign.Status = RideStatus.Accepted;
-                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Customer"))
+                {
+                    
+
+                        if(item.Id == TaxiRepository.Instance.selectedRideToAssign.Id)
+                        {
+                            if(TaxiRepository.Instance.selectedRideToAssign.Driver != null)
+                            item.Driver = TaxiRepository.Instance.selectedRideToAssign.Driver;
+                            else
+                            item.Driver = TaxiRepository.Instance.slobodniVozaci[dodatno.brojac];
+                            item.Status = RideStatus.Accepted;
+                            break;
+                        }
+                    
+                }
+                /*foreach (var item in TaxiRepository.Instance.AllRides)
                 {
                     if (item.Customer.Username != null || item.Customer.Username != "")
                     {
 
                         if (item.Customer.Username == TaxiRepository.Instance.selectedRideToAssign.Customer.Username)
                         {
-                            item.Driver = TaxiRepository.Instance.selectedRideToAssign.Driver;
-                            item.Status = RideStatus.Accepted;
-                            break;
-                        }
-                    }
-                }
-                foreach (var item in TaxiRepository.Instance.AllRides)
-                {
-                    if (item.Customer.Username != null || item.Customer.Username != "")
-                    {
-
-                        if (item.Customer.Username == TaxiRepository.Instance.selectedRideToAssign.Customer.Username)
-                        {
                             item.Status = RideStatus.Accepted;
                             item.Driver = TaxiRepository.Instance.selectedRideToAssign.Driver;
                             break;
                         }
                     }
                 }
-
-                TaxiRepository.Instance.slobodniVozaci[i].Rides.Add(TaxiRepository.Instance.selectedRideToAssign);
+                */
+                //TaxiRepository.Instance.slobodniVozaci[i].Rides.Add(TaxiRepository.Instance.selectedRideToAssign);
                 TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
-            }
+            //}
             return Ok();
         }
         [HttpGet]
-        [Route("api/taxi/selectride")]
-        public IHttpActionResult SelectRide([FromUri]int i)
+        [Route("api/Taxi/SelectRide")]
+        public IHttpActionResult SelectRide([FromUri]Dodatno selected)
         {
 
-            TaxiRepository.Instance.selectedRideToAssign = TaxiRepository.Instance.ridesSl[i];
+            TaxiRepository.Instance.selectedRideToAssign = TaxiRepository.Instance.ridesSl[selected.brojac];
             
             return Ok();
 
         }
         [HttpGet]
-        [Route("api/taxi/getridesmain")]
+        [Route("api/Taxi/getRidesMain")]
         public List<Ride> getRidesMain()
         {
             TaxiRepository.Instance.GetridesMain.Clear();
             if (TaxiRepository.Instance.userLogged)
             {
-                if (TaxiRepository.Instance.AllRides.Count() >0)
+                if (TaxiRepository.Instance.TaxiServiceRepository.Rides.Count() >0)
                 {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
+                    foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer").Include("Comment").Include("CustomerLocation").Include("CustomerLocation.Address"))
                     {if (item.Customer != null)
                         {
 
@@ -551,36 +563,30 @@ namespace Veb_Project.Controllers
                 }
 
             }
-            else if (TaxiRepository.Instance.dispecherLogged)
+            else if (TaxiRepository.Instance.dispecherLogged && TaxiRepository.Instance.TaxiServiceRepository.Rides.Count() > 0)
             {
-                if (TaxiRepository.Instance.AllRides.Count() > 0)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Dispatcher").Include("Comment"))
                 {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
+                    if (item.Dispatcher != null)
                     {
-                        if (item.Dispatcher != null)
-                        {
-
-                            if (item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username)
-                            {
-                                TaxiRepository.Instance.GetridesMain.Add(item);
-
-                            }
-                        }
+                        if (item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username && item.Dispatcher != null) TaxiRepository.Instance.GetridesMain.Add(item);
                     }
                 }
 
             }
             else if (TaxiRepository.Instance.driverLogged)
             {
-                if (TaxiRepository.Instance.AllRides.Count() > 0)
+                if (TaxiRepository.Instance.TaxiServiceRepository.Rides.Count() > 0)
                 {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
+                    foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Comment"))
                     {
-                        if (item.Driver != null)
-                        {
-                            if (item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.GetridesMain.Add(item);
-                        }
-                        }
+                        if (item.DriverId == TaxiRepository.Instance.signedInD.Id)
+                            TaxiRepository.Instance.GetridesMain.Add(item);
+                        //if (item.Driver != null)
+                        //{
+                        //    if (item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.GetridesMain.Add(item);
+                        //}
+                    }
                 }
 
             }
@@ -588,16 +594,16 @@ namespace Veb_Project.Controllers
             return TaxiRepository.Instance.GetridesMain;
         }
         [HttpPost]
-        [Route("api/taxi/cancelride")]
-        public IHttpActionResult CancelRide([FromBody]int i)
+        [Route("api/Taxi/CancelRide")]//////////
+        public IHttpActionResult CancelRide([FromBody]Dodatno dodatno)
         {
-            if (TaxiRepository.Instance.GetridesMain[i].Status != RideStatus.Accepted)
+            if (TaxiRepository.Instance.GetridesMain[dodatno.brojac].Status != RideStatus.Accepted)
             {
               
 
-                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer"))
                 {
-                    if (item.Customer.Username != null || item.Customer.Username != "")
+                    if (item.Customer != null)
                     {
                         if (item.Customer.Username == TaxiRepository.Instance.signedIn.Username)
                         {
@@ -608,7 +614,7 @@ namespace Veb_Project.Controllers
                 }
                 TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
-                foreach (var item in TaxiRepository.Instance.AllRides)
+                /*foreach (var item in TaxiRepository.Instance.AllRides)
                 {
                     if (item.Customer.Username != null || item.Customer.Username != "")
                     {
@@ -618,27 +624,30 @@ namespace Veb_Project.Controllers
 
                         }
                     }
-                }
+                }*/
 
                 return Ok();
             }
             return NotFound();
         }
         [HttpPost]
-        [Route("api/taxi/comment")]
-        public IHttpActionResult Comment([FromBody]Comment Comment)
+        [Route("api/Taxi/Comment")]
+        public IHttpActionResult Comment([FromBody]Dodatno comment)
         {
             
+            
+            
 
-            foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+            foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer").Include("Comment"))
             {
-                if (item.Customer.Username != null || item.Customer.Username != "" || item.Comment.Description != "")
+                if (item.Customer != null)
                 {
-                    if (item.Customer.Username == TaxiRepository.Instance.signedIn.Username)
+                    if (item.CommentId == TaxiRepository.Instance.GetridesMain[comment.brojac].CommentId)
                     {
+                        item.Comment = new Comment();
                         item.Comment.PublishDate = DateTime.Now.Date;
-                        item.Comment.Description = Comment.Description;
-                        item.Comment.Rate = Comment.Rate;
+                        item.Comment.Description = comment.Description;                       
+                        item.Comment.Rate = UInt32.Parse(comment.Rate);
                         item.Comment.Customer = TaxiRepository.Instance.getUser(TaxiRepository.Instance.signedIn.Username);
 
                     }
@@ -647,35 +656,35 @@ namespace Veb_Project.Controllers
 
             TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
-            foreach (var item in TaxiRepository.Instance.AllRides)
+           /* foreach (var item in TaxiRepository.Instance.AllRides)
             {
                 if (item.Customer.Username != null || item.Customer.Username != "" || item.Comment.Description != "")
                 {
-                    if (item.Customer.Username == TaxiRepository.Instance.signedIn.Username)
+                    if (item.CommentId == TaxiRepository.Instance.GetridesMain[comment.brojac].CommentId)
                     {
                         item.Comment.PublishDate = DateTime.Now.Date;
-                        item.Comment.Description = Comment.Description;
-                        item.Comment.Rate = Comment.Rate;
+                        item.Comment.Description = comment.Description;
+                        item.Comment.Rate = comment.Rate;
                         item.Comment.Customer = TaxiRepository.Instance.getUser(TaxiRepository.Instance.signedIn.Username);
 
                     }
                 }
-            }
+            }*/
 
             return Ok();
         }
         [HttpPost]
-        [Route("api/taxi/assigndriver")]
-        public IHttpActionResult AssignDriver([FromBody]int i)
+        [Route("api/Taxi/AssignDriver")]
+        public IHttpActionResult AssignDriver([FromBody]Dodatno dodatno)
         {
-            if (TaxiRepository.Instance.ridesSl[i].Status == RideStatus.Ordered)
+            if (TaxiRepository.Instance.ridesSl[dodatno.brojac].Status == RideStatus.Ordered)
             {
-                TaxiRepository.Instance.ridesSl[i].Driver = TaxiRepository.Instance.getDriver(TaxiRepository.Instance.signedInD.Username);
+                TaxiRepository.Instance.ridesSl[dodatno.brojac].Driver = TaxiRepository.Instance.getDriver(TaxiRepository.Instance.signedInD.Username);
             
-                foreach (var ride in TaxiRepository.Instance.TaxiServiceRepository.Rides)
-                {   if (ride.Customer.Username != "" || ride.Customer.Username != null)
+                foreach (var ride in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer"))
+                {   if (ride.Customer != null)
                     {
-                        if (ride.Customer.Username == TaxiRepository.Instance.ridesSl[i].Customer.Username)
+                        if (ride.Customer.Username == TaxiRepository.Instance.ridesSl[dodatno.brojac].Customer.Username)
                         {
                             ride.Status = RideStatus.Accepted;
                         }
@@ -683,7 +692,7 @@ namespace Veb_Project.Controllers
                 }
                 TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
-                foreach (var ride in TaxiRepository.Instance.AllRides)
+                /*foreach (var ride in TaxiRepository.Instance.AllRides)
                 {
                     if (ride.Customer.Username != "" || ride.Customer.Username != null)
                     {
@@ -692,36 +701,42 @@ namespace Veb_Project.Controllers
                             ride.Status = RideStatus.Accepted;
                         }
                     }
-                }
+                }*/
                 return Ok();
             }
             return NotFound();
         }
         [HttpGet]
-        [Route("api/taxi/currentride")]
+        [Route("api/Taxi/CurrentRide")]
         public IHttpActionResult CurrentRide()
         {
-           
-
-            foreach (var item in TaxiRepository.Instance.AllRides)
+            foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("CustomerLocation").Include("CustomerLocation.Address"))
             {
-                if(item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
+                if (item.Driver != null && item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
                 {
                     if (item.Status == RideStatus.Accepted) return Ok(item);
                 }
             }
+
+            //foreach (var item in TaxiRepository.Instance.AllRides)
+            //{
+            //    if(item.Driver != null && item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
+            //    {
+            //        if (item.Status == RideStatus.Accepted) return Ok(item);
+            //    }
+            //}
             
             return NotFound();
         }
         [HttpPost]
-        [Route("api/taxi/finishedride")]
+        [Route("api/Taxi/FinishedRide")]
         public void FinishedRide(Ride finishedRide)
         {
 
             if(finishedRide.Status == RideStatus.Successful)
             {
                
-                foreach (var item in TaxiRepository.Instance.AllRides)
+                /*foreach (var item in TaxiRepository.Instance.AllRides)
                 {
                     if (item.Driver.Username != null)
                     {
@@ -738,25 +753,22 @@ namespace Veb_Project.Controllers
                             item.Destionation.Address.PostalCode = finishedRide.CustomerLocation.Address.PostalCode;
                         }
                     }
-                }
+                }*/
                 
 
-                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Destionation").Include("Destionation.Address"))
                 {
-                    if (item.Driver.Username != "" || item.Driver.Username != null)
+                    if (finishedRide.Id == item.Id)
                     {
-                        if (item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
-                        {
                             item.Status = RideStatus.Successful;
                             item.Fare = finishedRide.Fare;
+                            item.Destionation = new Location();
                             item.Destionation.Latitude = finishedRide.CustomerLocation.Latitude;
                             item.Destionation.Longitude = finishedRide.CustomerLocation.Longitude;
+                            item.Destionation.Address = new Address();
                             item.Destionation.Address.Street = finishedRide.CustomerLocation.Address.Street;
-                            item.Destionation.Address.Number = finishedRide.CustomerLocation.Address.Number;
                             item.Destionation.Address.City = finishedRide.CustomerLocation.Address.City;
-                            item.Destionation.Address.PostalCode = finishedRide.CustomerLocation.Address.PostalCode;
 
-                        }
                     }
                 }
                 TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
@@ -764,7 +776,7 @@ namespace Veb_Project.Controllers
             else
             {
 
-                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
+               /* foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
                 {
                     if (item.Username != null)
                     {
@@ -793,31 +805,31 @@ namespace Veb_Project.Controllers
                             }
                         }
                     }
-                }
+                }*/
 
-                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
-                {if (item.Driver.Username != null)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Comment"))
+                {
+                    if (finishedRide.Id == item.Id)
                     {
-                        if (item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
-                        {
                             item.Status = RideStatus.Unsuccessful;
+                            item.Comment = new Comment();
+                            item.Comment.PublishDate = DateTime.Now;
                             item.Comment.Description = finishedRide.Comment.Description;
-                        }
                     }
                 }
                 TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
             }
         }
         [HttpGet]
-        [Route("api/taxi/allrides")]
+        [Route("api/Taxi/AllRides")]
         public List<Ride> AllRides()
         {
 
-            return TaxiRepository.Instance.AllRides;
+            return TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("CustomerLocation").Include("Customer").Include("Dispatcher").Include("Comment").Include("Driver").ToList();
         }
 
         [HttpPost]
-        [Route("api/taxi/filter")]
+        [Route("api/Taxi/Filter")]
         public List<Ride> Filter([FromBody]Dodatno status)
         {
             if (TaxiRepository.Instance.dispecherLogged)
@@ -913,7 +925,7 @@ namespace Veb_Project.Controllers
             return null;
         }
         [HttpPost]
-        [Route("api/taxi/sort")]
+        [Route("api/Taxi/Sort")]
         public List<Ride> Sort([FromBody]Dodatno dodatno)
         {
             List<Ride> list = new List<Ride>();
@@ -973,7 +985,7 @@ namespace Veb_Project.Controllers
             return list;
         }
         [HttpPost]
-        [Route("api/taxi/search")]
+        [Route("api/Taxi/Search")]
         public List<Ride> Search([FromBody]Dodatno dodatno)
         {
             TaxiRepository.Instance.RidesDisp.Clear();
@@ -1321,12 +1333,21 @@ namespace Veb_Project.Controllers
             List<Ride> rides = new List<Ride>();
             if (TaxiRepository.Instance.dispecherLogged)
             {
-
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Dispatcher").Include("Comment"))
+                {
+                    if (item.Dispatcher.Username == username && item.Dispatcher != null) rides.Add(item);
+                }
             }else if (TaxiRepository.Instance.userLogged)
             {
-                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer").Include("Comment"))
                 {
                     if (item.Customer.Username == username) rides.Add(item);
+                }
+            }else if (TaxiRepository.Instance.driverLogged)
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Comment"))
+                {
+                    if (item.Driver.Username == username) rides.Add(item);
                 }
             }
 
@@ -1335,7 +1356,7 @@ namespace Veb_Project.Controllers
         }
 
         [HttpPost]
-        [Route("api/taxi/block")]
+        [Route("api/Taxi/Block")]
         public IHttpActionResult Block([FromBody]LoginParam username)
         {
             bool found = false;
@@ -1395,7 +1416,7 @@ namespace Veb_Project.Controllers
             return NotFound();
         }
         [HttpPost]
-        [Route("api/taxi/unblock")]
+        [Route("api/Taxi/Unblock")]
         public IHttpActionResult UnBlock([FromBody]LoginParam username)
         {
             bool found = false;
@@ -1470,7 +1491,7 @@ namespace Veb_Project.Controllers
         //log = pow(driver.log - custom.log)
         //return sqrt(lat + log)
         [HttpGet]
-        [Route("api/taxi/getUsersDistance")]
+        [Route("api/Taxi/getUsersDistance")]
         public List<Ride> getUsersDistance()
         {
             List<Ride> rides = new List<Ride>();
@@ -1525,6 +1546,126 @@ namespace Veb_Project.Controllers
 
             return null;
 
+        }
+        [HttpPost]
+        [Route("api/Taxi/Preview")]
+        public List<Ride> Preview([FromBody]Dodatno dodatno)
+        {
+            List<Ride> allRides = TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer").Include("Driver").Include("Dispatcher").Include("CustomerLocation").Include("Comment").ToList();
+            List<Ride> rides = new List<Ride>();
+            if (TaxiRepository.Instance.dispecherLogged)
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer").Include("Driver").Include("Dispatcher").Include("CustomerLocation").Include("Comment"))
+                {
+                    rides.Add(item);
+                }
+            }else if (TaxiRepository.Instance.userLogged)
+            {
+                foreach (var item in allRides)
+                {
+                    if(item.Customer != null && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) 
+                    rides.Add(item);
+                }
+               
+            }else if (TaxiRepository.Instance.driverLogged)
+            {
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer").Include("Driver").Include("Dispatcher").Include("CustomerLocation").Include("Comment"))
+                {
+                    if (item.Driver != null && item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
+                        rides.Add(item);
+                }
+            }
+           
+
+
+
+            if(dodatno.Status != RideStatus.NoFilter)
+            {
+                foreach (var item in rides)
+                {
+                    if (item.Status != dodatno.Status) rides.Remove(item);
+                }
+            }
+
+            if (dodatno.DatumOd != null)
+            {
+                foreach (var item in rides)
+                {
+                    if (item.OrderTime.Date < dodatno.DatumOd) rides.Remove(item);
+                }
+            }
+            if (dodatno.DatumDo != null)
+            {
+                foreach (var item in rides)
+                {
+                    if (item.OrderTime.Date > dodatno.DatumDo) rides.Remove(item);
+                }
+            }
+            if(dodatno.CenaDo != 0)
+            {
+                foreach (var item in rides)
+                {
+                    if (item.Fare > dodatno.CenaDo) rides.Remove(item);
+                }
+            }
+
+            if (dodatno.CenaOd != 0)
+            {
+                foreach (var item in rides)
+                {
+                    if (item.Fare < dodatno.CenaOd) rides.Remove(item);
+                }
+            }
+
+            if(dodatno.OcenaDo != 0)
+            {
+                foreach (var item in rides)
+                {
+                    if (item.Comment.Rate > dodatno.OcenaDo) rides.Remove(item);
+                }
+            }
+
+            if (dodatno.OcenaOd != 0)
+            {
+                foreach (var item in rides)
+                {
+                    if (item.Comment.Rate < dodatno.OcenaOd) rides.Remove(item);
+                }
+            }
+
+            if (dodatno.SortDatum)
+            {
+                for (int i = 0; i < rides.Count - 1; i++)
+                {
+                    for (int j = i + 1; j > 0; j--)
+                    {
+                        if (rides[j - 1].OrderTime < rides[j].OrderTime)
+                        {
+                            Ride temp = rides[j - 1];
+                            rides[j - 1] = rides[j];
+                            rides[j] = temp;
+                        }
+                    }
+                }
+
+            }
+            else if (dodatno.SortOcena)
+            {
+                for (int i = 0; i < rides.Count - 1; i++)
+                {
+                    for (int j = i + 1; j > 0; j--)
+                    {
+                        if (rides[j - 1].Comment.Rate < rides[j].Comment.Rate)
+                        {
+                            Ride temp = rides[j - 1];
+                            rides[j - 1] = rides[j];
+                            rides[j] = temp;
+                        }
+                    }
+                }
+
+            }
+            return rides;
         }
     }
 }

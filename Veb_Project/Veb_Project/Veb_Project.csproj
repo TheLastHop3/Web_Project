@@ -213,11 +213,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\blue.jpg" />
     <Content Include="App_Data\DB.mdf" />
     <Content Include="App_Data\DB_log.ldf">
       <DependentUpon>DB.mdf</DependentUpon>
     </Content>
     <Content Include="App_Data\Dispechers.txt" />
+    <Content Include="App_Data\taxi-blue.jpg" />
+    <Content Include="App_Data\taxi-blue.png" />
     <Content Include="Areas\HelpPage\HelpPage.css" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -321,7 +324,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>50388</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:50388/</IISUrl>
+          <IISUrl>http://localhost:50000/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
