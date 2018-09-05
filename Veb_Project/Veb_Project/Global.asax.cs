@@ -147,8 +147,8 @@ namespace Veb_Project
             TaxiRepository.Instance.AllRides.Add(ride1);
             */
             //TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(ride);
+            LoadDispechers(@"C:\Users\andre\Desktop\Web_Project\Veb_Project\Veb_Project\App_Data\Dispechers.txt");
             TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
-           // LoadDispechers(@"F:\Web_Project\Veb_Project\Veb_Project\App_Data\Dispechers.txt");
         }
 
         private void LoadDispechers(string path)

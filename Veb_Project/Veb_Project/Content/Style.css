@@ -17,3 +17,8 @@
     height: 350px;
     width: 680px;
 }
+.border {
+    border-width: 2px;
+    border-style: solid;
+    border-color: blue;
+}

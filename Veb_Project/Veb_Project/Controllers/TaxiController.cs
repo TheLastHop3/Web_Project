@@ -12,14 +12,10 @@ namespace Veb_Project.Controllers
     public class TaxiController : ApiController
     {
        
-        //kada se salje datum kroz text input(moze ali se mora napisati u formatu:m.d.y),takodje moze i preko date inputa,jedini problem jeste sto time je 12.00.00 tj kod provere gledati samo date ne time
-        //GoogleMaps:napraviti novu classu string lat,string log,string addressa,parsirati addresu,kada ocemo edit,ili prikazati(preraditi init da prihvata lat long)
         //lat = pow(driver.lat - custom.lat)
         //log = pow(driver.log - custom.log)
         //return sqrt(lat + log)
-        //check dodaj komentar(user),unseccessful
         
-        //google maps request edit tj saljem samo street i city,change
         [HttpGet]
         [Route("api/Taxi/GetUser")]
         public IHttpActionResult GetUser()
@@ -453,50 +449,7 @@ namespace Veb_Project.Controllers
         [Route("api/Taxi/SelectDriver")]
         public IHttpActionResult SelectDriver([FromUri]Dodatno dodatno)
         {
-           /* bool found = false;
-            if (TaxiRepository.Instance.dispNapravioVoznju)
-            {
-                TaxiRepository.Instance.slobodniVozaci[dodatno.brojac].Rides.Add(TaxiRepository.Instance.dispRide);
-                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Dispatcher").Include("Driver"))
-                {
-                    if (item.Dispatcher != null)
-                    {
-
-                        if (TaxiRepository.Instance.dispRide.Dispatcher.Username == item.Dispatcher.Username)
-                        {
-                            TaxiRepository.Instance.dispRide.Status = RideStatus.Accepted;
-                            TaxiRepository.Instance.dispRide.Driver = TaxiRepository.Instance.slobodniVozaci[dodatno.brojac];
-                            item.Driver = TaxiRepository.Instance.slobodniVozaci[dodatno.brojac];
-                            TaxiRepository.Instance.TaxiServiceRepository.Rides.Add(TaxiRepository.Instance.dispRide);
-                            item.Status = RideStatus.Accepted;
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                if (found)
-                {
-                        TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
-
-                }
-               /* foreach (var item in TaxiRepository.Instance.AllRides)
-                {
-                    if (item.Dispatcher.Username != null)
-                    {
-                        if (TaxiRepository.Instance.dispRide.Dispatcher.Username == item.Dispatcher.Username)
-                        {
-                            TaxiRepository.Instance.dispRide.Status = RideStatus.Accepted;
-                            //TaxiRepository.Instance.AllRides.Add(TaxiRepository.Instance.dispRide);
-                            item.Driver = TaxiRepository.Instance.slobodniVozaci[i];
-                            item.Status = RideStatus.Accepted;
-                        }
-                    }
-                }
-
-             
-            }
-            else
-            {*/
+          
 
                 TaxiRepository.Instance.selectedRideToAssign.Status = RideStatus.Accepted;
                 foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Customer"))
@@ -514,24 +467,9 @@ namespace Veb_Project.Controllers
                         }
                     
                 }
-                /*foreach (var item in TaxiRepository.Instance.AllRides)
-                {
-                    if (item.Customer.Username != null || item.Customer.Username != "")
-                    {
-
-                        if (item.Customer.Username == TaxiRepository.Instance.selectedRideToAssign.Customer.Username)
-                        {
-                            item.Status = RideStatus.Accepted;
-                            item.Driver = TaxiRepository.Instance.selectedRideToAssign.Driver;
-                            break;
-                        }
-                    }
-                }
-                */
-                //TaxiRepository.Instance.slobodniVozaci[i].Rides.Add(TaxiRepository.Instance.selectedRideToAssign);
+              
                 TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
-            //}
             return Ok();
         }
         [HttpGet]
@@ -582,10 +520,7 @@ namespace Veb_Project.Controllers
                     {
                         if (item.DriverId == TaxiRepository.Instance.signedInD.Id)
                             TaxiRepository.Instance.GetridesMain.Add(item);
-                        //if (item.Driver != null)
-                        //{
-                        //    if (item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.GetridesMain.Add(item);
-                        //}
+                       
                     }
                 }
 
@@ -605,7 +540,7 @@ namespace Veb_Project.Controllers
                 {
                     if (item.Customer != null)
                     {
-                        if (item.Customer.Username == TaxiRepository.Instance.signedIn.Username)
+                        if (item.Customer.Username == TaxiRepository.Instance.signedIn.Username && TaxiRepository.Instance.GetridesMain[dodatno.brojac].Id == item.Id)
                         {
                             item.Status = RideStatus.Canceled;
 
@@ -614,17 +549,7 @@ namespace Veb_Project.Controllers
                 }
                 TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
-                /*foreach (var item in TaxiRepository.Instance.AllRides)
-                {
-                    if (item.Customer.Username != null || item.Customer.Username != "")
-                    {
-                        if (item.Customer.Username == TaxiRepository.Instance.signedIn.Username)
-                        {
-                            item.Status = RideStatus.Canceled;
-
-                        }
-                    }
-                }*/
+             
 
                 return Ok();
             }
@@ -642,7 +567,7 @@ namespace Veb_Project.Controllers
             {
                 if (item.Customer != null)
                 {
-                    if (item.CommentId == TaxiRepository.Instance.GetridesMain[comment.brojac].CommentId)
+                    if (item.CommentId == TaxiRepository.Instance.GetridesMain[comment.brojac].CommentId && item.Id == TaxiRepository.Instance.GetridesMain[comment.brojac].Id)
                     {
                         item.Comment = new Comment();
                         item.Comment.PublishDate = DateTime.Now.Date;
@@ -656,20 +581,7 @@ namespace Veb_Project.Controllers
 
             TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
-           /* foreach (var item in TaxiRepository.Instance.AllRides)
-            {
-                if (item.Customer.Username != null || item.Customer.Username != "" || item.Comment.Description != "")
-                {
-                    if (item.CommentId == TaxiRepository.Instance.GetridesMain[comment.brojac].CommentId)
-                    {
-                        item.Comment.PublishDate = DateTime.Now.Date;
-                        item.Comment.Description = comment.Description;
-                        item.Comment.Rate = comment.Rate;
-                        item.Comment.Customer = TaxiRepository.Instance.getUser(TaxiRepository.Instance.signedIn.Username);
-
-                    }
-                }
-            }*/
+        
 
             return Ok();
         }
@@ -677,31 +589,32 @@ namespace Veb_Project.Controllers
         [Route("api/Taxi/AssignDriver")]
         public IHttpActionResult AssignDriver([FromBody]Dodatno dodatno)
         {
-            if (TaxiRepository.Instance.ridesSl[dodatno.brojac].Status == RideStatus.Ordered)
+            if (TaxiRepository.Instance.ridesSl[dodatno.brojac].Status == RideStatus.Ordered || TaxiRepository.Instance.ridesSl[dodatno.brojac].Status == RideStatus.Processed)
             {
                 TaxiRepository.Instance.ridesSl[dodatno.brojac].Driver = TaxiRepository.Instance.getDriver(TaxiRepository.Instance.signedInD.Username);
             
                 foreach (var ride in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer"))
                 {   if (ride.Customer != null)
                     {
-                        if (ride.Customer.Username == TaxiRepository.Instance.ridesSl[dodatno.brojac].Customer.Username)
+                        if ((TaxiRepository.Instance.ridesSl[dodatno.brojac].Customer !=null && ride.Customer.Username == TaxiRepository.Instance.ridesSl[dodatno.brojac].Customer.Username) && TaxiRepository.Instance.ridesSl[dodatno.brojac].Id == ride.Id)
                         {
                             ride.Status = RideStatus.Accepted;
+                            if (ride.Driver == null) ride.Driver = TaxiRepository.Instance.ridesSl[dodatno.brojac].Driver;
+                        }
+
+                    }
+                    else
+                    {
+                        if(TaxiRepository.Instance.ridesSl[dodatno.brojac].Id == ride.Id)
+                        {
+                            ride.Status = RideStatus.Accepted;
+                            if (ride.Driver == null) ride.Driver = TaxiRepository.Instance.ridesSl[dodatno.brojac].Driver;
                         }
                     }
                 }
                 TaxiRepository.Instance.TaxiServiceRepository.SaveChanges();
 
-                /*foreach (var ride in TaxiRepository.Instance.AllRides)
-                {
-                    if (ride.Customer.Username != "" || ride.Customer.Username != null)
-                    {
-                        if (ride.Customer.Username == TaxiRepository.Instance.ridesSl[i].Customer.Username)
-                        {
-                            ride.Status = RideStatus.Accepted;
-                        }
-                    }
-                }*/
+                
                 return Ok();
             }
             return NotFound();
@@ -718,13 +631,7 @@ namespace Veb_Project.Controllers
                 }
             }
 
-            //foreach (var item in TaxiRepository.Instance.AllRides)
-            //{
-            //    if(item.Driver != null && item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
-            //    {
-            //        if (item.Status == RideStatus.Accepted) return Ok(item);
-            //    }
-            //}
+           
             
             return NotFound();
         }
@@ -736,24 +643,7 @@ namespace Veb_Project.Controllers
             if(finishedRide.Status == RideStatus.Successful)
             {
                
-                /*foreach (var item in TaxiRepository.Instance.AllRides)
-                {
-                    if (item.Driver.Username != null)
-                    {
-
-                        if (item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
-                        {
-                            item.Status = RideStatus.Successful;
-                            item.Fare = finishedRide.Fare;
-                            item.Destionation.Latitude = finishedRide.CustomerLocation.Latitude;
-                            item.Destionation.Longitude = finishedRide.CustomerLocation.Longitude;
-                            item.Destionation.Address.Street = finishedRide.CustomerLocation.Address.Street;
-                            item.Destionation.Address.Number = finishedRide.CustomerLocation.Address.Number;
-                            item.Destionation.Address.City = finishedRide.CustomerLocation.Address.City;
-                            item.Destionation.Address.PostalCode = finishedRide.CustomerLocation.Address.PostalCode;
-                        }
-                    }
-                }*/
+                
                 
 
                 foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Destionation").Include("Destionation.Address"))
@@ -776,36 +666,7 @@ namespace Veb_Project.Controllers
             else
             {
 
-               /* foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Drivers)
-                {
-                    if (item.Username != null)
-                    {
-                        if (TaxiRepository.Instance.signedInD.Username == item.Username)
-                        {
-                            foreach (var ride in item.Rides)
-                            {
-                                ride.Status = RideStatus.Unsuccessful;
-                                ride.Comment.Description = finishedRide.Comment.Description;
-
-                            }
-                        }
-                    }
-                }
-
-                foreach (var user in TaxiRepository.Instance.TaxiServiceRepository.Users)
-                {
-                    foreach (var ride in user.Rides)
-                    {
-                        if (user.Username != null && ride.Customer.Username != null)
-                        {
-                            if (user.Username == ride.Customer.Username)
-                            {
-                                ride.Status = RideStatus.Unsuccessful;
-                                ride.Comment.Description = finishedRide.Comment.Description;
-                            }
-                        }
-                    }
-                }*/
+              
 
                 foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("Comment"))
                 {
@@ -988,344 +849,22 @@ namespace Veb_Project.Controllers
         [Route("api/Taxi/Search")]
         public List<Ride> Search([FromBody]Dodatno dodatno)
         {
-            TaxiRepository.Instance.RidesDisp.Clear();
-            if (dodatno.SearchOcena)
-            {
-                if(dodatno.OcenaDo != 0 && dodatno.OcenaOd != 0)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer!= null)
-                        {
-                            if (item.Comment.Rate <= dodatno.OcenaDo && item.Comment.Rate >= dodatno.OcenaOd && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Comment.Rate <= dodatno.OcenaDo && item.Comment.Rate >= dodatno.OcenaOd && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                        
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Comment.Rate <= dodatno.OcenaDo && item.Comment.Rate >= dodatno.OcenaOd && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                    }
-                }
-                else if(dodatno.OcenaOd != 0)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Comment.Rate >= dodatno.OcenaOd && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Comment.Rate >= dodatno.OcenaOd && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                   
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Comment.Rate >= dodatno.OcenaOd && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                    }
-                }
-                else if(dodatno.OcenaDo != 0)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Comment.Rate <= dodatno.OcenaDo  && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher!=null)
-                        {
-                            if (item.Comment.Rate <= dodatno.OcenaDo  && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                           
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Comment.Rate <= dodatno.OcenaDo  && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                           
-                        }
-                    }
-                }
-                return TaxiRepository.Instance.RidesDisp;
-            }
-            if (dodatno.SearchCena)
-            {
-                if(dodatno.CenaDo !=0 && dodatno.CenaOd != 0)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Fare <= dodatno.CenaDo && item.Fare >= dodatno.CenaOd && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Fare <= dodatno.CenaDo && item.Fare >= dodatno.CenaOd && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver!= null)
-                        {
-                            if (item.Fare <= dodatno.CenaDo && item.Fare >= dodatno.CenaOd && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                    }
-                }
-                else if(dodatno.CenaOd != 0)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Fare >= dodatno.CenaOd && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Fare >= dodatno.CenaOd && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Fare >= dodatno.CenaOd && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                    }
-                }
-                else if(dodatno.CenaDo != 0)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Fare <= dodatno.CenaDo && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Fare <= dodatno.CenaDo && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Fare <= dodatno.CenaDo && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                           
-                        }
-                    }
-                }
-                return TaxiRepository.Instance.RidesDisp;
-            }
-            if (dodatno.SearchDatum)
-            {
-                if(dodatno.DatumDo != null && dodatno.DatumOd != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer!= null)
-                        {
-                            if (item.OrderTime.Date <= dodatno.DatumDo.Date && item.OrderTime.Date >= dodatno.DatumOd.Date && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.OrderTime.Date <= dodatno.DatumDo.Date && item.OrderTime.Date >= dodatno.DatumOd.Date && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.OrderTime.Date <= dodatno.DatumDo.Date && item.OrderTime.Date >= dodatno.DatumOd.Date && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                    }
-                }
-                else if(dodatno.DatumDo != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.OrderTime.Date <= dodatno.DatumDo.Date  && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.OrderTime.Date <= dodatno.DatumDo.Date  && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                           
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.OrderTime.Date <= dodatno.DatumDo.Date  && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                    }
-                }
-                else if(dodatno.DatumOd != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.OrderTime.Date >= dodatno.DatumOd.Date && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.OrderTime.Date >= dodatno.DatumOd.Date && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                     
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.OrderTime.Date >= dodatno.DatumOd.Date && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                    }
-                }
-                return TaxiRepository.Instance.RidesDisp;
-            }
+            List<Ride> rides = TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer").Include("Driver").Include("Comment").ToList();
             if (dodatno.SearchC)
             {
-                if(dodatno.imeMusterije != null && dodatno.prezimeMusterije != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Customer.Name.Contains(dodatno.imeMusterije) && item.Customer.LastName.Contains(dodatno.prezimeMusterije) && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Customer.Name.Contains(dodatno.imeMusterije) && item.Customer.LastName.Contains(dodatno.prezimeMusterije) && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Customer.Name.Contains(dodatno.imeMusterije) && item.Customer.LastName.Contains(dodatno.prezimeMusterije)&& item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                    }
-                }
-                else if(dodatno.imeMusterije != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Customer.Name.Contains(dodatno.imeMusterije) && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Customer.Name.Contains(dodatno.imeMusterije)  && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Customer.Name.Contains(dodatno.imeMusterije) && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                        
-                        }
-                    }
-                }
-                else if(dodatno.prezimeMusterije != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if ( item.Customer.LastName.Contains(dodatno.prezimeMusterije) && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Customer.LastName.Contains(dodatno.prezimeMusterije) && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Customer.LastName.Contains(dodatno.prezimeMusterije) && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-              
-                        }
-                    }
-                }
-                return TaxiRepository.Instance.RidesDisp;
+                if (dodatno.imeMusterije != null)
+                    rides = rides.Where(x => x.Customer != null && x.Customer.Name == dodatno.imeMusterije).ToList();
+                if (dodatno.prezimeMusterije != null)
+                    rides = rides.Where(x => x.Customer != null && x.Customer.LastName == dodatno.prezimeMusterije).ToList();
             }
-           if (dodatno.SearchD)
+            if (dodatno.SearchD)
             {
-                if (dodatno.imeVozaca != null && dodatno.prezimeVozaca != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca) && item.Driver.LastName.Contains(dodatno.prezimeVozaca) && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca) && item.Driver.LastName.Contains(dodatno.prezimeVozaca) && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca) && item.Driver.LastName.Contains(dodatno.prezimeVozaca) && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                           
-                        }
-                    }
-                }
-                else if (dodatno.imeVozaca != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca)  && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca)  && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                         
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null)
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca)  && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                           
-                        }
-                    }
-                }
-                else if (dodatno.prezimeVozaca != null)
-                {
-                    foreach (var item in TaxiRepository.Instance.AllRides)
-                    {
-                        if (TaxiRepository.Instance.userLogged && item.Customer != null)
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca) && item.Customer.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-
-                        }
-                        else if (TaxiRepository.Instance.dispecherLogged && item.Dispatcher != null)
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca) && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                            
-                        }
-                        else if (TaxiRepository.Instance.driverLogged && item.Driver != null) 
-                        {
-                            if (item.Driver.Name.Contains(dodatno.imeVozaca) && item.Driver.Username == TaxiRepository.Instance.signedInD.Username) TaxiRepository.Instance.RidesDisp.Add(item);
-                          
-                        }
-                    }
-                }
-                return TaxiRepository.Instance.RidesDisp;
+                if (dodatno.imeVozaca != null)
+                    rides = rides.Where(x => x.Driver.Name == dodatno.imeVozaca).ToList();
+                if (dodatno.prezimeVozaca != null)
+                    rides = rides.Where(x => x.Driver.LastName == dodatno.prezimeVozaca).ToList();
             }
-
-            return null;
+            return rides;
         }
 
         private List<Ride> getAllRides(string username)
@@ -1499,7 +1038,7 @@ namespace Veb_Project.Controllers
             List<double> distances = new List<double>();
             if (TaxiRepository.Instance.driverLogged)
             {
-                foreach (var item in TaxiRepository.Instance.AllRides)
+                foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("CustomerLocation"))
                 {
                     if(item.Driver != null && item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
                     {
@@ -1557,6 +1096,7 @@ namespace Veb_Project.Controllers
             {
                 foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Customer").Include("Driver").Include("Dispatcher").Include("CustomerLocation").Include("Comment"))
                 {
+                    if(item.Dispatcher != null && item.Dispatcher.Username == TaxiRepository.Instance.signedIn.Username)
                     rides.Add(item);
                 }
             }else if (TaxiRepository.Instance.userLogged)
@@ -1575,62 +1115,42 @@ namespace Veb_Project.Controllers
                         rides.Add(item);
                 }
             }
-           
 
 
 
             if(dodatno.Status != RideStatus.NoFilter)
             {
-                foreach (var item in rides)
-                {
-                    if (item.Status != dodatno.Status) rides.Remove(item);
-                }
+               rides = rides.Where(x => x.Status == dodatno.Status).ToList();
+
+            }
+            DateTime dateTime = new DateTime(1, 1, 1);
+            if (dodatno.DatumOd.Date != dateTime)
+            {
+                rides = rides.Where(x => x.OrderTime.Date > dodatno.DatumOd).ToList();
+                
+            }
+            if (dodatno.DatumDo != dateTime)
+            {
+                rides = rides.Where(x => x.OrderTime.Date < dodatno.DatumDo).ToList();
+            }
+            if(dodatno.CenaDo != -1)
+            {
+                rides = rides.Where(x => x.Fare < dodatno.CenaDo).ToList();
             }
 
-            if (dodatno.DatumOd != null)
+            if (dodatno.CenaOd != -1)
             {
-                foreach (var item in rides)
-                {
-                    if (item.OrderTime.Date < dodatno.DatumOd) rides.Remove(item);
-                }
-            }
-            if (dodatno.DatumDo != null)
-            {
-                foreach (var item in rides)
-                {
-                    if (item.OrderTime.Date > dodatno.DatumDo) rides.Remove(item);
-                }
-            }
-            if(dodatno.CenaDo != 0)
-            {
-                foreach (var item in rides)
-                {
-                    if (item.Fare > dodatno.CenaDo) rides.Remove(item);
-                }
+                rides = rides.Where(x => x.Fare > dodatno.CenaOd).ToList();
             }
 
-            if (dodatno.CenaOd != 0)
+            if(dodatno.OcenaDo != -1)
             {
-                foreach (var item in rides)
-                {
-                    if (item.Fare < dodatno.CenaOd) rides.Remove(item);
-                }
+                rides = rides.Where(x => x.Comment.Rate < dodatno.OcenaDo).ToList();
             }
 
-            if(dodatno.OcenaDo != 0)
+            if (dodatno.OcenaOd != -1)
             {
-                foreach (var item in rides)
-                {
-                    if (item.Comment.Rate > dodatno.OcenaDo) rides.Remove(item);
-                }
-            }
-
-            if (dodatno.OcenaOd != 0)
-            {
-                foreach (var item in rides)
-                {
-                    if (item.Comment.Rate < dodatno.OcenaOd) rides.Remove(item);
-                }
+                rides = rides.Where(x => x.Comment.Rate > dodatno.OcenaOd).ToList();
             }
 
             if (dodatno.SortDatum)
