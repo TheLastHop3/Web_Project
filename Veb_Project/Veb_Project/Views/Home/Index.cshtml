@@ -384,7 +384,7 @@ if (list[i].Comment != null)
                         });
                 function dispMain(list) {
                     if (list != null) {
-                        var print = "<table><tr><td>Status</td><td>OrderTime</td><td>Rate</td><td>Fare</td><td>Description</td>";
+                        var print = `<table class="border"><tr><td>Status</td><td>OrderTime</td><td>Rate</td><td>Fare</td><td>Description</td>`;
                         for (i in list) {
                                 print += `<tr><td>`;
                             switch (list[i].Status) {
@@ -441,7 +441,7 @@ if (list[i].Comment != null)
 
                 function customMain(list) {
                     if (list != null) {
-                        var print = "<table><tr><td>Status</td><td>OrderTime</td><td>Rate</td><td>Fare</td><td>Description</td><td><td>";
+                        var print = `<table class="border"><tr><td>Status</td><td>OrderTime</td><td>Rate</td><td>Fare</td><td>Description</td><td><td>`;
                         for (i in list) {
                             print += `<tr><td>`;
                         switch (list[i].Status) {
