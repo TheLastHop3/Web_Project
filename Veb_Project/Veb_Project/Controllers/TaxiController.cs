@@ -1040,7 +1040,7 @@ namespace Veb_Project.Controllers
             {
                 foreach (var item in TaxiRepository.Instance.TaxiServiceRepository.Rides.Include("Driver").Include("CustomerLocation"))
                 {
-                    if(item.Driver != null && item.Driver.Username == TaxiRepository.Instance.signedInD.Username)
+                    if(item.DriverId == TaxiRepository.Instance.signedInD.Id)
                     {
                         rides.Add(item);
                     }
